@@ -7,7 +7,7 @@
 		"slideshow",
 		"parallax"
     ],
-    "version": "0.6.2",
+    "version": "0.6.3",
     "author": {
         "name": "Mario Jäckle | jacksbox.design",
         "url": "https://jacksbox.det"
@@ -25,9 +25,9 @@
             "url": "https://github.com/jquery/jquery-color/blob/2.1.2/MIT-LICENSE.txt"
         }
     ],
-    "homepage": "https://fractionslider.jacksbox.de",
-    "demo": "https://fractionslider.jacksbox.de",
-    "docs": "https://fractionslider.jacksbox.de/documentation",
+    "homepage": "http://fractionslider.jacksbox.de",
+    "demo": "http://fractionslider.jacksbox.de",
+    "docs": "http://fractionslider.jacksbox.de/documentation",
     "dependencies": {
         "jquery": ">=1.8"
     }
