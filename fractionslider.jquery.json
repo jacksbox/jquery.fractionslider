@@ -1,0 +1,36 @@
+{
+    "name": "fractionSlider",
+    "title": "Fraction Slider",
+    "description": "jQuery plugin for slider with multiple elements to animate",
+    "keywords": [
+        "slider",
+        "multiple elements",
+		"slideshow",
+		"parallax",
+		"parallax slider"
+    ],
+    "version": "0.6",
+    "author": {
+        "name": "Mario Jäckle | jacksbox.design",
+        "url": "https://jacksbox.det"
+    },
+    "maintainers": [
+        {
+            "name": "Mario Jäckle",
+            "email": "support@jacksbox.de",
+            "url": "http://jacksbox.de"
+        }
+    ],
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "https://github.com/jquery/jquery-color/blob/2.1.2/MIT-LICENSE.txt"
+        }
+    ],
+    "homepage": "https://fractionslider.jacksbox.de",
+    "demo": "https://fractionslider.jacksbox.de",
+    "docs": "https://fractionslider.jacksbox.de/how-to",
+    "dependencies": {
+        "jquery": ">=1.8"
+    }
+}

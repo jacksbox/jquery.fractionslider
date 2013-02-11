@@ -1,0 +1,32 @@
+.fraction-slider{
+	overflow:visible;
+}
+
+.fraction-slider img{
+	position:absolute;
+	top:0px; left:1000px;
+}
+
+.fraction-slider .slide{
+	display:none;
+}
+
+.fraction-slider .prev{
+	display:block;
+	width:30px; height:30px;
+	position:absolute;
+	left:10px; top:185px;
+	background:url(images/fs.prevnext.png) 0px 0px no-repeat transparent;
+	
+	z-index:9999;
+}
+
+.fraction-slider .next{
+	display:block;
+	width:30px; height:30px;
+	position:absolute;
+	right:10px; top:185px;
+	background:url(images/fs.prevnext.png) -30px 0px no-repeat transparent;
+	
+	z-index:9999;
+}
