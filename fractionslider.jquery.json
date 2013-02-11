@@ -6,9 +6,8 @@
         "slider",
 		"slideshow",
 		"parallax",
-		"parallax"
     ],
-    "version": "0.6.0",
+    "version": "0.6.1",
     "author": {
         "name": "Mario Jäckle | jacksbox.design",
         "url": "https://jacksbox.det"
@@ -28,7 +27,7 @@
     ],
     "homepage": "https://fractionslider.jacksbox.de",
     "demo": "https://fractionslider.jacksbox.de",
-    "docs": "https://fractionslider.jacksbox.de/how-to",
+    "docs": "https://fractionslider.jacksbox.de/documentation",
     "dependencies": {
         "jquery": ">=1.8"
     }
