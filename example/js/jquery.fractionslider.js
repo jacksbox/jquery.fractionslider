@@ -446,8 +446,8 @@
 			    oldPos = oldPos.split(' ');
 			var moveX = options['backgroundX'];	
 			var moveY = options['backgroundY'];
-			var x = Number(oldPos[0].replace(/[px]/g, '')) + moveX;	
-			var y = Number(oldPos[0].replace(/[px]/g, '')) + moveY;
+			var x = Number(oldPos[0].replace(/[px,%]/g, '')) + moveX;	
+			var y = Number(oldPos[0].replace(/[px,%]/g, '')) + moveY;
 			
 			el.animate({backgroundPositionX: x+'px', backgroundPositionY: y+'px'}, options['backgroundSpeed'], options['backgroundEase']);
 		}
