@@ -1,13 +1,14 @@
 {
     "name": "fractionslider",
     "title": "Fraction Slider",
-    "description": "jQuery plugin for slider with multiple elements to animate",
+    "description": "jQuery plugin for image/text-sliders. It allows you to animate multiple elements per slide",
     "keywords": [
         "slider",
 		"slideshow",
-		"parallax"
+		"parallax",
+		"imageslider"
     ],
-    "version": "0.6.5",
+    "version": "0.6.6",
     "author": {
         "name": "Mario Jäckle | jacksbox.design",
         "url": "https://jacksbox.det"

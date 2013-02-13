@@ -22,13 +22,14 @@
 		
 		var vars = {
 			init: true, 
+			running:false,
 			currentSlide: 0,
 			maxSlide: 0,
 			currentStep: 0,
 			maxStep: 0,
 			currentObj: 0,
 			maxObjs: 0,
-			finishedObjs: 0,
+			finishedObjs: 0
 		};
 		
 		// objs for current step
@@ -109,8 +110,15 @@
 			// timeout after slide is complete	
 			setTimeout(function(){
 					// console.log('slide change:');
-					endSlide(vars.currentSlide-1);
-					startSlide();
+					
+					// stops the slider after first slide (only when slide count = 1)
+					if(vars.maxSlide == 0 && vars.running == true){
+						// TODO: better solution!
+					}else{
+						endSlide(vars.currentSlide-1);
+						startSlide();
+						vars.running = true;
+					}
 				}, 
 				timeout
 			);
