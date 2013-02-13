@@ -6,7 +6,8 @@
         "slider",
 		"slideshow",
 		"parallax",
-		"imageslider"
+		"imageslider",
+		"animation"
     ],
     "version": "0.6.6",
     "author": {
