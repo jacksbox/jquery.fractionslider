@@ -3,7 +3,7 @@
     "title": "Fraction Slider",
     "description": "
 					jQuery plugin for image/text-sliders. It allows you to animate multiple elements per slide\r\n
-					Set different animation methodes like fade or (from) left, dealys and easing for each element, or spimple set some defaults in the plugin options.\r\n
+					Set different animation methodes like fade or (from) left, delays and easing for each element, or spimple set some defaults in the plugin options.\r\n
 					You also have full layout/design control through html and css (every html-element can be animated).
 					",
     "keywords": [
