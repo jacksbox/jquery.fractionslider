@@ -351,17 +351,37 @@
 						moveObjectOut(tmp, tmpPosition, tmpTransition, speed);
 					}
 				}
-				// transition start
-				 obj.css({"top": startY+"px", "left": startX+"px"})
-					.show()
-					.animate({"top": targetY+"px", "left": targetX+"px"}, 
-							 speed, 
-							 easing, 
-							 function(){
-							 	objFinished();
-							 	}
-							)
-					.addClass('altSlider_el_active');
+				
+				if(transition == 'fade'){
+					 obj.css({"top": targetY+"px", "left": targetX+"px"})
+						.fadeIn(speed, 
+				   		 function(){
+				   		 	objFinished();
+				   		 	}
+						)
+						.addClass('altSlider_el_active');					
+				}else if(transition == 'none'){
+					// no animation
+					 obj.css({"top": targetY+"px", "left": targetX+"px"})
+						.show(0, 
+				   		 function(){
+				   		 	objFinished();
+				   		 	}
+						)
+						.addClass('altSlider_el_active');
+				}else{
+					// animate
+					obj.css({"top": startY+"px", "left": startX+"px"})
+					   .show()
+					   .animate({"top": targetY+"px", "left": targetX+"px"}, 
+					   		 speed, 
+					   		 easing, 
+					   		 function(){
+					   		 	objFinished();
+					   		 	}
+					   		)
+					   .addClass('altSlider_el_active');	
+				}
 			},delay);
 		}
 		
@@ -404,10 +424,12 @@
 					targetY = obj.outerHeight()*-1;
 					targetX = sliderWidth;
 					break;
+				default:
+					break;
 			}
 			
 			// get speed for the out transition
-			if(speed == null){
+			if((speed == null && transition != 'fade') || (speed == null && transition != 'none')){
 				if(position['left']>targetX){
 					distX = Math.abs(position['left']-targetX);
 				}else
@@ -429,18 +451,40 @@
 				dist = Math.sqrt((distX*distX)+(distY*distY));
 				
 				// calculate the speed for transition
-				var speed = (dist * (options['speedOut']/1000));	
+				speed = (dist * (options['speedOut']/1000));	
+			}else if(speed != null){
+			}else{
+				// calculate the speed for transition
+				speed = options['speedOut'];
 			}	
 			
-			// transition start
-			obj.animate({"top": targetY+"px", "left": targetX+"px"}, 
-						speed, 
-						easing, 
+			if(transition == 'fade'){
+				// fade
+				obj.fadeOut(speed, 
+							function(){
+								obj.hide();
+								}
+					)
+					.removeClass('altSlider_el_active');				
+			}else if(transition == 'none'){
+				// animation
+				obj.hide(0,
 						function(){
 							obj.hide();
 							}
-						)
-				.removeClass('altSlider_el_active');
+					)
+					.removeClass('altSlider_el_active');
+			}else{
+				// animation
+				obj.animate({"top": targetY+"px", "left": targetX+"px"}, 
+							speed, 
+							easing, 
+							function(){
+								obj.hide();
+								}
+					)
+					.removeClass('altSlider_el_active');	
+			}
 		}
 		
 		function backgroundAnimation(){
