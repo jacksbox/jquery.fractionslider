@@ -21,22 +21,23 @@
 	var FractionSlider = function(element, options){
 		
 		var vars = {
-			init: true, 
-			running:false,
-			currentSlide: 0,
-			maxSlide: 0,
-			currentStep: 0,
-			maxStep: 0,
-			currentObj: 0,
-			maxObjs: 0,
-			finishedObjs: 0
+			init: true, 			// initialised the first time
+			running:false,			// currently running
+			controlsActive:true,	// currently running
+			currentSlide: 0,		// current slide number
+			maxSlide: 0,			// max slide number
+			currentStep: 0,			// current step number
+			maxStep: 0,				// current slide number
+			currentObj: 0,			// curent object number (in step)
+			maxObjs: 0,				// max object number (in step)
+			finishedObjs: 0			// finsihed objects (in step)
 		};
+		var timeouts = [];
 		
-		// objs for current step
-		var fractionObjs = null;
+		var fractionObjs = null; 	// objs for current step
 		
-		// the slider element
-		var slider = $(element);
+		var	slider = $(element),
+			pager = null; 	// the slider element
 		
 		vars.maxSlide = slider.children('.slide').length - 1;
 		
@@ -60,28 +61,16 @@
 			slider.addClass('fraction-slider');
 			
 			if(options['controls']){
-				slider.append('<a href="#" class="prev" ></a><a href="#" class="next" ></a>');
+				slider.append('<a href="#" class="prev"></a><a href="#" class="next" ></a>');
 				
-				slider.find('.next').bind('click', function(){
-					slider.find('*').stop();
-					endSlide(vars.currentSlide);
-					vars.currentSlide++;
-					vars.currentStep = 0;
-					if(vars.currentSlide > vars.maxSlide){
-						vars.currentSlide = 0;
-					}
-					startSlide();
+				slider.find('.next').bind('click', function(){return nextBtnPressed()
 				})
-				slider.find('.prev').bind('click', function(){
-					slider.find('*').stop();
-					endSlide(vars.currentSlide);
-					vars.currentSlide--;
-					vars.currentStep = 0;
-					if(vars.currentSlide < 0){
-						vars.currentSlide = vars.maxSlide;
-					}
-					startSlide();
-				})
+				slider.find('.prev').bind('click', function(){return prevBtnPressed()});
+			}
+			
+			if(options['pager']){
+				pager = $('<div class="fs-pager-wrapper"></div>');
+				slider.append(pager);
 			}
 
 			if(options['fullWidth']){
@@ -90,10 +79,106 @@
 				slider.css({'overflow': 'hidden'});
 			}
 			
+			slider.children('.slide').each(function(index){
+				var slide = $(this);
+				slide.children().attr('rel', index);
+				if(options['pager']){
+					pager.append('<a rel="'+index+'" href="#"></a>');
+				}	
+			});
+			
+			if(options['pager']){
+				pager = $(pager).children('a');
+				pager.bind('click', function(){return pagerPressed(this)});
+			}
 			
 			// all importent stuff is done, everybody has taken a shower, we can go
 			// starts the slider and the slide rotation
 			slideRotation();
+		}
+		
+		function pagerPressed(el){
+			if(vars.controlsActive){
+				vars.controlsActive = false;
+				stopTimeouts();
+				slider.find('.slide *').stop(true, true);
+			
+				endSlide(vars.currentSlide);
+				
+				vars.currentSlide = $(el).attr('rel');
+				
+				vars.currentStep = 0;
+				vars.maxStep = 0;
+				vars.currentObj = 0;
+				vars.maxObjs = 0;
+				vars.finishedObjs = 0;
+				
+				// console.log('prev '+vars.currentSlide);
+				startSlide();
+			}
+			
+			return false;
+		}
+		
+		function prevBtnPressed(){
+			if(vars.controlsActive){
+				vars.controlsActive = false;
+				stopTimeouts();
+				slider.find('.slide *').stop(true, true);
+				
+				endSlide(vars.currentSlide);
+				
+				vars.currentSlide--;
+				
+				vars.currentStep = 0;
+				vars.maxStep = 0;
+				vars.currentObj = 0;
+				vars.maxObjs = 0;
+				vars.finishedObjs = 0;
+				
+				if(vars.currentSlide < 0){
+					vars.currentSlide = vars.maxSlide;
+				}
+				// console.log('prev '+vars.currentSlide);
+				startSlide();
+			}
+			
+			return false;
+		}
+		function nextBtnPressed(){
+			if(vars.controlsActive){
+				vars.controlsActive = false;
+				stopTimeouts();
+				slider.find('.slide *').stop(true, true);
+				
+				endSlide(vars.currentSlide);
+				
+				vars.currentSlide++;
+			
+				vars.currentStep = 0;
+				vars.maxStep = 0;
+				vars.currentObj = 0;
+				vars.maxObjs = 0;
+				vars.finishedObjs = 0;
+				
+				if(vars.currentSlide > vars.maxSlide){
+					vars.currentSlide = 0;
+				}
+				// console.log('next '+vars.currentSlide);
+				startSlide();
+			}
+			
+			return false;
+		}
+		
+		function stopTimeouts(){
+			var length = timeouts.length;
+			$.each(timeouts,function(index){
+				clearTimeout(this);
+				if(index == length-1){
+					timeouts = [];
+				}
+			});
 		}
 		
 		function slideRotation(){
@@ -106,9 +191,9 @@
 				vars.init = false;
 			}
 			
-			// console.log('TIMEOUT');
+		    // console.log('TIMEOUT');
 			// timeout after slide is complete	
-			setTimeout(function(){
+			timeouts.push(setTimeout(function(){
 					// console.log('slide change:');
 					
 					// stops the slider after first slide (only when slide count = 1)
@@ -121,11 +206,15 @@
 					}
 				}, 
 				timeout
-			);
+			));
 		}
 		
 		// starts a slide
 		function startSlide(){
+			if(options['pager']){
+				pager.removeClass('active');
+				pager.eq(vars.currentSlide).addClass('active');
+			};
 			
 			if(options['backgroundAnimation']){
 				backgroundAnimation()
@@ -160,7 +249,7 @@
 			
 			// console.log(' end slide: '+slide);
 			
-			var objs = slider.children('.slide:eq('+slide+')').children();
+			var objs = slideObj.children();
 			
 			objs.each(function(){
 				var obj = $(this);
@@ -177,7 +266,10 @@
 				}
 				
 				moveObjectOut(obj, position, transition, easing);
-			}).promise().done(function(){slideObj.hide()});
+			}).promise().done(function(){
+				slideObj.hide(); 
+				vars.controlsActive = true;
+			});
 		}
 		
 		// gets the maximum step for the current slide
@@ -219,9 +311,8 @@
 		}
 		
 		function iterateObjs(){
-			
 			var obj = $(fractionObjs[vars.currentObj]);
-			
+
 			var position = obj.attr("data-position").split(',');
 			var transition = obj.attr("data-in");
 			var delay = obj.attr("data-delay");
@@ -229,7 +320,7 @@
 			var easing = obj.attr('data-ease-in');
 			// check for special options
 			var special = obj.attr("data-special");
-            
+			
 			if(position == null){
 				position = options['position'].split(',');
 			}
@@ -242,7 +333,6 @@
 			if(easing == null){
 				easing = options['easeIn'];
 			}
-				
 			moveObjectIn(obj, position, transition, delay, speed, easing, special);
 			
 			vars.currentObj++;
@@ -254,13 +344,16 @@
 			}
 		}
 		
-		function objFinished(){
-			vars.finishedObjs++;
-			
-			// console.log('  finished: '+vars.finishedObjs +"/"+ vars.maxObjs);
-			
-			if(vars.finishedObjs == vars.maxObjs){
-				slider.trigger('fraction:stepFinished');
+		function objFinished(obj){
+			if(obj.attr('rel') == vars.currentSlide){
+				vars.finishedObjs++;
+
+				//console.log('  finished: '+vars.finishedObjs +"/"+ vars.maxObjs + ' - ' + vars.currentSlide + "/"+obj.attr('rel'));
+				//console.log($(obj));
+
+				if(vars.finishedObjs == vars.maxObjs){
+					slider.trigger('fraction:stepFinished');
+				}	
 			}
 		}
 		
@@ -337,9 +430,9 @@
 			}
 			
 			// set the delay
-			setTimeout(function(){
+			timeouts.push(setTimeout(function(){
 				// for special=cylce 
-				if(special == 'cycle'){
+				if(special == 'cycle' && obj.attr('rel') == vars.currentSlide){
 					var tmp = obj.prev();
 					if(tmp.length > 0){
 						var tmpPosition = $(tmp).attr('data-position').split(',');
@@ -356,19 +449,19 @@
 					 obj.css({"top": targetY+"px", "left": targetX+"px"})
 						.fadeIn(speed, 
 				   		 function(){
-				   		 	objFinished();
+				   		 	objFinished(obj);
 				   		 	}
 						)
-						.addClass('altSlider_el_active');					
+						.addClass('fs_obj_active');					
 				}else if(transition == 'none'){
 					// no animation
 					 obj.css({"top": targetY+"px", "left": targetX+"px"})
 						.show(0, 
 				   		 function(){
-				   		 	objFinished();
+				   		 	objFinished(obj);
 				   		 	}
 						)
-						.addClass('altSlider_el_active');
+						.addClass('fs_obj_active');
 				}else{
 					// animate
 					obj.css({"top": startY+"px", "left": startX+"px"})
@@ -377,12 +470,12 @@
 					   		 speed, 
 					   		 easing, 
 					   		 function(){
-					   		 	objFinished();
+					   		 	objFinished(obj);
 					   		 	}
 					   		)
-					   .addClass('altSlider_el_active');	
+					   .addClass('fs_obj_active');	
 				}
-			},delay);
+			},delay));
 		}
 		
 		/** OUT TRANSITION **/
@@ -465,7 +558,7 @@
 								obj.hide();
 								}
 					)
-					.removeClass('altSlider_el_active');				
+					.removeClass('fs_obj_active');				
 			}else if(transition == 'none'){
 				// animation
 				obj.hide(0,
@@ -473,7 +566,7 @@
 							obj.hide();
 							}
 					)
-					.removeClass('altSlider_el_active');
+					.removeClass('fs_obj_active');
 			}else{
 				// animation
 				obj.animate({"top": targetY+"px", "left": targetX+"px"}, 
@@ -483,7 +576,7 @@
 								obj.hide();
 								}
 					)
-					.removeClass('altSlider_el_active');	
+					.removeClass('fs_obj_active');	
 			}
 		}
 		
@@ -525,6 +618,7 @@
 		  'easeOut'						: 'easeOutCubic',		// default easing out
 		
 		  'controls'					: false,				// controls on/off
+		  'pager'						: false,				// controls on/off
 		  'autoChange'					: true,					// auto change slides
 		
 		  'backgroundAnimation'			: false,				// background animation

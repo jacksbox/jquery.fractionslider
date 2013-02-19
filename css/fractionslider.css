@@ -12,7 +12,7 @@
 }
 
 .fraction-slider .prev{
-	display:block;
+	display:none;
 	width:30px; height:30px;
 	position:absolute;
 	left:10px; top:185px;
@@ -20,13 +20,40 @@
 	
 	z-index:9999;
 }
+.fraction-slider .prev:hover{
+	background:url(images/fs.prevnext.png) 0px -30px no-repeat transparent;
+}
 
 .fraction-slider .next{
-	display:block;
+	display:none;
 	width:30px; height:30px;
 	position:absolute;
 	right:10px; top:185px;
 	background:url(images/fs.prevnext.png) -30px 0px no-repeat transparent;
 	
 	z-index:9999;
+}
+.fraction-slider .next:hover{
+	background:url(images/fs.prevnext.png) -30px -30px no-repeat transparent;
+}
+
+.fraction-slider:hover .prev,
+.fraction-slider:hover .next{
+	display:block;
+}
+
+.fs-pager-wrapper{
+	position:absolute;
+	left:10px; bottom:10px;
+	z-index:9999;	
+}
+
+.fs-pager-wrapper a{
+	display:inline-block;
+	width:14px; height:14px;
+	margin:0 5px 0 0;
+	background:url(images/fs.pager.png) 0px -14px no-repeat transparent;
+}
+.fs-pager-wrapper .active{
+	background:url(images/fs.pager.png) 0px 0px no-repeat transparent;
 }
