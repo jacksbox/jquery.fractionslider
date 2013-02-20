@@ -2,14 +2,22 @@
 	overflow:visible;
 }
 
-.fraction-slider img{
-	position:absolute;
-	top:0px; left:1000px;
-}
-
 .fraction-slider .slide{
 	display:none;
 }
+
+.fraction-slider .fs_obj{
+	display:block; display:none;
+	position:absolute;
+	top:0px; left:100%;
+}
+
+.fraction-slider .fs_obj *{
+	display:inline-block;
+	position:relative; top:0px; left:0px;
+}
+
+/** CONTROLS **/
 
 .fraction-slider .prev{
 	display:none;
@@ -41,6 +49,8 @@
 .fraction-slider:hover .next{
 	display:block;
 }
+
+/** PAGER **/
 
 .fs-pager-wrapper{
 	position:absolute;

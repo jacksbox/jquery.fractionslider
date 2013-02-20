@@ -81,7 +81,7 @@
 			
 			slider.children('.slide').each(function(index){
 				var slide = $(this);
-				slide.children().attr('rel', index);
+				slide.children().attr('rel', index).addClass('fs_obj');
 				if(options['pager']){
 					pager.append('<a rel="'+index+'" href="#"></a>');
 				}	
@@ -220,18 +220,18 @@
 				backgroundAnimation()
 			};
 			
-			var slideObj = slider.children('.slide:eq('+vars.currentSlide+')');
+			var slide = slider.children('.slide:eq('+vars.currentSlide+')');
 			
-			if(slideObj.length == 0){
+			if(slide.length == 0){
 				vars.currentSlide = 0;
-				slideObj = slider.children('.slide:eq('+vars.currentSlide+')');
+				slide = slider.children('.slide:eq('+vars.currentSlide+')');
 			}
 			// console.log(' start slide: '+vars.currentSlide);
 			
 			getStepsForSlide();
 			
-			slideObj.show();
-			slideObj.children().hide();
+			slide.css({'display':'block'});
+			slide.children().hide();
 			
 			vars.currentObj = 0;
 			vars.maxObjs = 0;
