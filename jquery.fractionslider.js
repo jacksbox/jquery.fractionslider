@@ -214,7 +214,7 @@
 			}
 			sliderHeight = 100;
 			
-			if(vars.init == false){
+			if(vars.init == false || w < dX){
 				resizeFontSize();
 			}
 		}
