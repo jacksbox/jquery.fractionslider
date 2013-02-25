@@ -147,6 +147,7 @@
 					
 					x = pixelToPercent(value, dX);
 					obj.attr("width", x+"%");
+					obj.css("width", x+"%");
 				}else 
 				if(obj.css('width') != '0px'){
 					value = obj.css("width");
@@ -168,6 +169,7 @@
 					
 					y = pixelToPercent(value, dY);
 					obj.attr("height", y+"%");
+					obj.css("height", y+"%");
 				}else
 				if(obj.css('height') != '0px'){
 					value = obj.css("height");
@@ -202,7 +204,7 @@
 			if(w < 1000){
 				var xy = dX/dY,
 					nH = w/xy;
-				slider.find('.fs-stretcher').css({'width': w+'px','height': nH+"px"});
+				slider.find('.fs-stretcher').css({'width': w+'px','height': nH+"px"});	
 			}
 			
 			// calculate the width/height/offsetX of the slider
@@ -233,6 +235,7 @@
 					value = value.substring(0,value.length - 2);
 					n = pixelToPercent(value, dY) * (slider.height()/100);
 					obj.css("fontSize", n+"px");
+					obj.css("lineHeight", '100%');
 				};
 				
 				
