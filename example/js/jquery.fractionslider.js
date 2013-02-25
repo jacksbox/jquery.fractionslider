@@ -62,6 +62,7 @@
 		
 		function init(){
 			
+			// controls
 			if(options['controls']){
 				slider.append('<a href="#" class="prev"></a><a href="#" class="next" ></a>');
 				
@@ -70,11 +71,13 @@
 				slider.find('.prev').bind('click', function(){return prevBtnPressed()});
 			}
 			
+			// pager
 			if(options['pager']){
 				pager = $('<div class="fs-pager-wrapper"></div>');
 				slider.append(pager);
 			}
 
+			// fullwidth setup
 			if(options['fullWidth']){
 				slider.css({'overflow': 'visible'});
 			}else{
@@ -84,20 +87,24 @@
 			slider.children('.slide').each(function(index){
 				var slide = $(this);
 				slide.children().attr('rel', index).addClass('fs_obj');
+				// pager again
 				if(options['pager']){
 					pager.append('<a rel="'+index+'" href="#"></a>');
 				}	
 			});
 			
+			// pager again
 			if(options['pager']){
 				pager = $(pager).children('a');
 				pager.bind('click', function(){return pagerPressed(this)});
 			}
 			
+			// responisve
 			if(options['responsive']){
 				makeResponsive();
 			}
 			
+			// remove spinner
 			if(slider.find('.fs_loader').length > 0){
 				slider.find('.fs_loader').remove();
 			}
@@ -360,10 +367,6 @@
 		
 		// starts a slide
 		function startSlide(){
-			if(options['pager']){
-				pager.removeClass('active');
-				pager.eq(vars.currentSlide).addClass('active');
-			};
 			
 			if(options['backgroundAnimation']){
 				backgroundAnimation()
@@ -376,6 +379,11 @@
 				slide = slider.children('.slide:eq('+vars.currentSlide+')');
 			}
 			// console.log(' start slide: '+vars.currentSlide);
+			
+			if(options['pager']){
+				pager.removeClass('active');
+				pager.eq(vars.currentSlide).addClass('active');
+			};
 			
 			getStepsForSlide();
 			
