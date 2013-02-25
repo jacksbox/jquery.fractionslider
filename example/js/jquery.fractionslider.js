@@ -1,5 +1,5 @@
 /*
- * jQuery Fraction Slider v0.7.7
+ * jQuery Fraction Slider v0.8.0
  * http://fractionslider.jacksbox.de
  *
  * Author: Mario Jäckle
@@ -422,7 +422,7 @@
 					easing = options['easeOut'];
 				}
 				
-				moveObjectOut(obj, position, transition, easing);
+				moveObjectOut(obj, position, transition, null,easing);
 			}).promise().done(function(){
 				slideObj.hide(); 
 				vars.controlsActive = true;
@@ -495,7 +495,7 @@
 			var position = obj.attr("data-position");
 			var transition = obj.attr("data-in");
 			var delay = obj.attr("data-delay");
-			var speed = obj.attr('data-speed');
+			var time = obj.attr('data-time');
 			var easing = obj.attr('data-ease-in');
 			// check for special options
 			var special = obj.attr("data-special");
@@ -514,7 +514,7 @@
 			if(easing == null){
 				easing = options['easeIn'];
 			}
-			moveObjectIn(obj, position, transition, delay, speed, easing, special);
+			moveObjectIn(obj, position, transition, delay, time, easing, special);
 			
 			vars.currentObj++;
 			
@@ -543,11 +543,12 @@
 		/** ************************* **/
 		
 		/** IN TRANSITION **/
-		function moveObjectIn(obj, position, transition, delay, speed, easing, special){
+		function moveObjectIn(obj, position, transition, delay, time, easing, special){
 			var startY = null;
 			var startX = null;
 			var targetY = null;
 			var targetX = null;
+			var speed = null;
 			
 			// set start position
 			switch(transition){
@@ -591,10 +592,12 @@
 			targetY = position[0];
 			targetX = position[1];
 			
-			if(speed == null){
+			
+			// #time
+			if(time == null){
 				speed =options['speedIn'];
 			}else{
-				speed = parseInt(speed);
+				speed = time - delay;
 			}
 			
 			if(options['responsive']){
@@ -662,7 +665,6 @@
 		function moveObjectOut(obj, position, transition, speed, easing){
 			var targetY = null;
 			var targetX = null;
-			
 			// set target position
 			switch(transition){
 				case 'left':
@@ -718,30 +720,33 @@
 					break;
 			}
 			
-			if(options['responsive']){
-				targetX = targetX+'%';
-				targetY = targetY+'%';
-			}else{
-				targetX = targetX+'px';
-				targetY = targetY+'px';
-			}
-			
 			// get speed for the out transition
 			if((speed == null && transition != 'fade') || (speed == null && transition != 'none')){
-				if(position['left']>targetX){
-					distX = Math.abs(position['left']-targetX);
+				var pL = null, pT = null, ms = null;
+				var dist = null, distY = null, distX = null;
+				if(options['responsive']){
+					ms = pixelToPercent(1000, dX);
+					pL = pixelToPercent(position['left'], dX);
+					pT = pixelToPercent(position['top'], dY);
+				}else{
+					ms = 1000;
+					pL = position['left'];
+					pT = position['top'];
+				}
+				if(pL>targetX){
+					distX = Math.abs(pL-targetX);
 				}else
-				if(position['left']>targetX){
-					distX = Math.abs(targetX-position['left']);
+				if(pL>targetX){
+					distX = Math.abs(targetX-pL);
 				}else{
 					distX = 0;
 				}
 				
-				if(position['top']>targetY){
-					distY = Math.abs(position['top']-targetY);
+				if(pT>targetY){
+					distY = Math.abs(pT-targetY);
 				}else
-				if(targetY>position['top']){
-					distY = Math.abs(targetY-position['top']);
+				if(targetY>pT){
+					distY = Math.abs(targetY-pT);
 				}else{
 					distY = 0;
 				}
@@ -749,12 +754,20 @@
 				dist = Math.sqrt((distX*distX)+(distY*distY));
 				
 				// calculate the speed for transition
-				speed = (dist * (options['speedOut']/1000));	
-			}else if(speed != null){
+				speed = (dist * (options['speedOut']/ms));
+			}else if(speed != null){	
+				speed = options['speedOut'];
 			}else{
-				// calculate the speed for transition
 				speed = options['speedOut'];
 			}	
+						
+			if(options['responsive']){
+				targetX = targetX+'%';
+				targetY = targetY+'%';
+			}else{
+				targetX = targetX+'px';
+				targetY = targetY+'px';
+			}			
 			
 			if(transition == 'fade'){
 				// fade
