@@ -1,9 +1,9 @@
 /*
- * jQuery Fraction Slider v0.7.3
+ * jQuery Fraction Slider v0.7.7
  * http://fractionslider.jacksbox.de
  *
  * Author: Mario Jäckle
- * eMail: support@jacksbopx.de
+ * eMail: support@jacksbox.de
  *
  * Copyright 2013, jacksbox.design
  * Free to use under the MIT license.
@@ -36,7 +36,11 @@
 		
 		var fractionObjs = null; 	// objs for current step
 		
-		var	slider = $(element),
+		var dX = null, dy = null;
+		
+		$(element).wrapInner('<div class="fraction-slider" />');
+		
+		var	slider = $(element).find('.fraction-slider'),
 			pager = null; 	// the slider element
 		
 		vars.maxSlide = slider.children('.slide').length - 1;
@@ -53,12 +57,11 @@
 		init();
 		
 		/** ************************* **/
-		/** FUNCTIONS **/
+		/** INITIALIZE **/
 		/** ************************* **/
 		
 		function init(){
 			// some basic stuff
-			slider.addClass('fraction-slider');
 			
 			if(options['controls']){
 				slider.append('<a href="#" class="prev"></a><a href="#" class="next" ></a>');
@@ -91,11 +94,148 @@
 				pager = $(pager).children('a');
 				pager.bind('click', function(){return pagerPressed(this)});
 			}
+
+			if(options['responsive']){
+				makeResponsive();
+			}
 			
 			// all importent stuff is done, everybody has taken a shower, we can go
 			// starts the slider and the slide rotation
 			slideRotation();
 		}
+		
+		/** ************************* **/
+		/** RESPONSIVE **/
+		/** ************************* **/
+		
+		function makeResponsive(){
+			var d = options['dimensions'].split(',');
+			
+				dX = d['0'],
+				dY = d['1'];
+			
+			var objs = slider.children('.slide').find('*');
+			
+			objs.each(function(){
+				var obj = $(this),
+					x = null,
+					y = null,
+					value = null;
+				
+				// calculate % position	
+				if(obj.attr("data-position") != null){
+					var position = obj.attr("data-position").split(',');
+					
+					x = pixelToPercent(position[1], dX);
+					y = pixelToPercent(position[0], dY);
+					obj.attr("data-position", y+','+x);
+				}
+				
+				// calculate % width
+				if(obj.attr("width") != null){
+					value = obj.attr("width");
+					
+					x = pixelToPercent(value, dX);
+					obj.attr("width", x+"%");
+				}else 
+				if(obj.css('width') != '0px'){
+					value = obj.css("width");
+					if(value.indexOf('px') > 0){
+						value = value.substring(0,value.length - 2);
+						x = pixelToPercent(value, dX);
+						obj.css("width", x+"%");
+					};
+				}else
+				if(obj.prop("tagName").toLowerCase() == 'img'){
+					value = obj.get(0).width;
+					x = pixelToPercent(value, dX);
+					obj.css("width", x+"%");
+				}
+				
+				// calculate % height
+				if(obj.attr("height") != null){
+					value = obj.attr("height");
+					
+					y = pixelToPercent(value, dY);
+					obj.attr("height", y+"%");
+				}else
+				if(obj.css('height') != '0px'){
+					value = obj.css("height");
+					if(value.indexOf('px') > 0){
+						value = value.substring(0,value.length - 2);
+						y = pixelToPercent(value, dY);
+						obj.css("height", y+"%");
+					};
+				}else
+				if(obj.prop("tagName").toLowerCase() == 'img'){
+					value = obj.get(0).height;
+					y = pixelToPercent(value, dY);
+					obj.css("height", y+"%");
+				}
+				
+				obj.attr('data-fontsize', obj.css('font-size'));
+				
+			});
+			
+			slider.css({'width': 'auto', 'height': 'auto'}).append('<div class="fs-stretcher" style="width:'+dX+'px; height:'+dY+'px"></div>');
+			
+			resizeSlider();
+			
+			$(window).bind('resize', function(){
+				resizeSlider();
+			});
+		}
+		
+		function resizeSlider(){
+			var w = slider.innerWidth(),
+				h = slider.innerHeight();
+			if(w < 1000){
+				var xy = dX/dY,
+					nH = w/xy;
+				slider.find('.fs-stretcher').css({'width': w+'px','height': nH+"px"});
+			}
+			
+			// calculate the width/height/offsetX of the slider
+			var sW = slider.width();
+			offsetX = pixelToPercent(((bodyWidth-sW)/2), dX);
+			sliderWidth = 100;
+			if(options['fullWidth']){
+				sliderWidth = 100 + offsetX*2;
+			}
+			sliderHeight = 100;
+			
+			resizeFontSize();
+		}
+		
+		function resizeFontSize(){
+			var value = null,
+				n = null;
+			var objs = slider.children('.slide').find('*');
+			
+			objs.each(function(){
+				obj = $(this);
+				
+				var value = obj.attr('data-fontsize');
+				
+				if(value.indexOf('px') > 0){
+					value = value.substring(0,value.length - 2);
+					n = pixelToPercent(value, dY) * (slider.height()/100);
+					obj.css("fontSize", n+"px");
+				};
+				
+				
+			});
+		}
+		
+		function pixelToPercent(value, d){
+			// console.log(value +' '+ d);
+			// console.log(value/(d/100));
+			return value/(d/100);
+		}
+		
+		/** ************************* **/
+		/** PAGER & CONTROLS **/
+		/** ************************* **/
 		
 		function pagerPressed(el){
 			if(vars.controlsActive){
@@ -180,6 +320,10 @@
 				}
 			});
 		}
+		
+		/** ************************* **/
+		/** SLIDES **/
+		/** ************************* **/
 		
 		function slideRotation(){
 			// set timeout | first slide instant start
@@ -272,6 +416,10 @@
 			});
 		}
 		
+		/** ************************* **/
+		/** STEPS **/
+		/** ************************* **/
+		
 		// gets the maximum step for the current slide
 		function getStepsForSlide(){
 			var objs = slider.children('.slide:eq('+vars.currentSlide+')').children();
@@ -286,7 +434,6 @@
 			// console.log('  max steps: '+ vars.maxStep);
 		}
 		
-		/** SLIDE TIMELINE **/
 		function iterateSteps(){
 			
 			if(vars.currentStep == 0){
@@ -310,10 +457,29 @@
 			}
 		}
 		
+		slider.bind('fraction:stepFinished', function(){
+			vars.currentStep++
+			if(vars.currentStep > vars.maxStep){
+				if(options['autoChange']){
+					vars.currentSlide++;
+					vars.currentStep = 0;
+
+					slideRotation();
+				}
+				
+				return;
+			}
+			iterateSteps();
+		});
+		
+		/** ************************* **/
+		/** OBJECTS **/
+		/** ************************* **/
+		
 		function iterateObjs(){
 			var obj = $(fractionObjs[vars.currentObj]);
 
-			var position = obj.attr("data-position").split(',');
+			var position = obj.attr("data-position");
 			var transition = obj.attr("data-in");
 			var delay = obj.attr("data-delay");
 			var speed = obj.attr('data-speed');
@@ -323,6 +489,8 @@
 			
 			if(position == null){
 				position = options['position'].split(',');
+			}else{
+				position = position.split(',');
 			}
 			if(transition == null){
 				transition = options['transitionIn'];
@@ -357,21 +525,6 @@
 			}
 		}
 		
-		slider.bind('fraction:stepFinished', function(){
-			vars.currentStep++
-			if(vars.currentStep > vars.maxStep){
-				if(options['autoChange']){
-					vars.currentSlide++;
-					vars.currentStep = 0;
-
-					slideRotation();
-				}
-				
-				return;
-			}
-			iterateSteps();
-		});
-		
 		/** ************************* **/
 		/** TRANSITIONS **/
 		/** ************************* **/
@@ -388,6 +541,7 @@
 				case 'left':
 					startY = position[0];
 					startX = sliderWidth;
+					console.log();
 					break;
 				case 'bottomLeft':
 					startY = sliderHeight;
@@ -419,6 +573,7 @@
 					break;
 			}
 			
+			
 			// set target position
 			targetY = position[0];
 			targetX = position[1];
@@ -427,6 +582,18 @@
 				speed =options['speedIn'];
 			}else{
 				speed = parseInt(speed);
+			}
+			
+			if(options['responsive']){
+				targetX = targetX+'%';
+				targetY = targetY+'%';
+				startX = startX+'%';
+				startY = startY+'%';
+			}else{
+				targetX = targetX+'px';
+				targetY = targetY+'px';
+				startX = startX+'px';
+				startY = startY+'px';
 			}
 			
 			// set the delay
@@ -446,7 +613,7 @@
 				}
 				
 				if(transition == 'fade'){
-					 obj.css({"top": targetY+"px", "left": targetX+"px"})
+					 obj.css({"top": targetY, "left": targetX})
 						.fadeIn(speed, 
 				   		 function(){
 				   		 	objFinished(obj);
@@ -455,7 +622,7 @@
 						.addClass('fs_obj_active');					
 				}else if(transition == 'none'){
 					// no animation
-					 obj.css({"top": targetY+"px", "left": targetX+"px"})
+					 obj.css({"top": targetY, "left": targetX})
 						.show(0, 
 				   		 function(){
 				   		 	objFinished(obj);
@@ -464,9 +631,9 @@
 						.addClass('fs_obj_active');
 				}else{
 					// animate
-					obj.css({"top": startY+"px", "left": startX+"px"})
+					obj.css({"top": startY, "left": startX})
 					   .show()
-					   .animate({"top": targetY+"px", "left": targetX+"px"}, 
+					   .animate({"top": targetY, "left": targetX}, 
 					   		 speed, 
 					   		 easing, 
 					   		 function(){
@@ -486,7 +653,11 @@
 			// set target position
 			switch(transition){
 				case 'left':
-					targetY = position['top'];
+					targetY = obj.css('top');
+					if(targetY.indexOf('px') > 0 && options['responsive']){
+						targetY = targetY.substring(0,targetY.length - 2);
+						targetY = pixelToPercent(targetY, dY);
+					};
 					targetX = 0 - offsetX - 100 - obj.outerWidth();
 					break;
 				case 'bottomLeft':
@@ -499,14 +670,27 @@
 					break;
 				case 'top':
 					targetY = obj.outerHeight()*-1;
-					targetX = position['left'];
+					targetX = obj.css('left');
+					if(targetX.indexOf('px') > 0 && options['responsive']){
+						targetX = targetX.substring(0,targetX.length - 2);
+						targetX = pixelToPercent(targetX, dX);
+					};
 					break;
 				case 'bottom':
 					targetY = sliderHeight;
-					targetX = position['left'];
+					targetX = obj.css('left');
+					targetX = obj.css('left');
+					if(targetX.indexOf('px') > 0 && options['responsive']){
+						targetX = targetX.substring(0,targetX.length - 2);
+						targetX = pixelToPercent(targetX, dX);
+					};
 					break;
 				case 'right':
-					targetY = position['top'];
+					targetY = obj.css('top');
+					if(targetY.indexOf('px') > 0 && options['responsive']){
+						targetY = targetY.substring(0,targetY.length - 2);
+						targetY = pixelToPercent(targetY, dY);
+					};
 					targetX = sliderWidth;
 					break;
 				case 'bottomRight':
@@ -519,6 +703,14 @@
 					break;
 				default:
 					break;
+			}
+			
+			if(options['responsive']){
+				targetX = targetX+'%';
+				targetY = targetY+'%';
+			}else{
+				targetX = targetX+'px';
+				targetY = targetY+'px';
 			}
 			
 			// get speed for the out transition
@@ -569,7 +761,7 @@
 					.removeClass('fs_obj_active');
 			}else{
 				// animation
-				obj.animate({"top": targetY+"px", "left": targetX+"px"}, 
+				obj.animate({"top": targetY, "left": targetX}, 
 							speed, 
 							easing, 
 							function(){
@@ -607,7 +799,7 @@
 		// defaults & options
 		var options = $.extend( {
 		  'position'					: '0,0',				// default position | should never be used
-		  'transitionIn'        		: 'left',				// defaulöt in - transition
+		  'transitionIn'        		: 'left',				// default in - transition
 		  'transitionOut' 				: 'left',				// default out - transition
 		  'fullWidth' 					: false,				// transition over the full width of the window
 		  'delay' 						: 0,					// default delay for elements
@@ -627,10 +819,15 @@
 		  'backgroundY'					: 500,					// default y distance
 		  'backgroundSpeed'				: 2500,					// default background animation speed
 		  'backgroundEase'				: 'easeOutCubic',		// default background animation easing
+		
+		  'responsive'					: false,				// default background animation speed
+		  'dimensions'					: '',					// default background animation easing
 		}, options);
 		
-		// ready for take-off 
-		var slider = new FractionSlider(this, options);
+		return this.each(function() {
+			// ready for take-off 
+			var slider = new FractionSlider(this, options);
+		}
   	};
 
 	/** ************************* **/
