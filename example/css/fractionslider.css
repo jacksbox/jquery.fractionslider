@@ -17,6 +17,11 @@
 	position:relative; top:0px; left:0px;
 }
 
+.fraction-slider .fs_loader{
+	width:100%; height:400px;
+	background:url(images/fs.spinner.gif) center center no-repeat transparent;
+}
+
 /** CONTROLS **/
 
 .fraction-slider .prev{

@@ -61,7 +61,6 @@
 		/** ************************* **/
 		
 		function init(){
-			// some basic stuff
 			
 			if(options['controls']){
 				slider.append('<a href="#" class="prev"></a><a href="#" class="next" ></a>');
@@ -94,9 +93,13 @@
 				pager = $(pager).children('a');
 				pager.bind('click', function(){return pagerPressed(this)});
 			}
-
+			
 			if(options['responsive']){
 				makeResponsive();
+			}
+			
+			if(slider.find('.fs_loader').length > 0){
+				slider.find('.fs_loader').remove();
 			}
 			
 			// all importent stuff is done, everybody has taken a shower, we can go
@@ -204,7 +207,9 @@
 			}
 			sliderHeight = 100;
 			
-			resizeFontSize();
+			if(vars.init == false){
+				resizeFontSize();
+			}
 		}
 		
 		function resizeFontSize(){
@@ -824,10 +829,8 @@
 		  'dimensions'					: '',					// default background animation easing
 		}, options);
 		
-		return this.each(function() {
-			// ready for take-off 
-			var slider = new FractionSlider(this, options);
-		}
+		// ready for take-off 
+		var slider = new FractionSlider(this, options);
   	};
 
 	/** ************************* **/
