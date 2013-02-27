@@ -201,7 +201,7 @@
 		function resizeSlider(){
 			var w = slider.innerWidth(),
 				h = slider.innerHeight();
-			if(w < 1000){
+			if(w < dX){
 				var xy = dX/dY,
 					nH = w/xy;
 				slider.find('.fs-stretcher').css({'width': w+'px','height': nH+"px"});	
@@ -233,7 +233,7 @@
 				
 				if(value.indexOf('px') > 0){
 					value = value.substring(0,value.length - 2);
-					n = pixelToPercent(value, dY) * (slider.height()/100);
+					n = pixelToPercent(value, dY) * (slider.find('.fs-stretcher').height()/100);
 					obj.css("fontSize", n+"px");
 					obj.css("lineHeight", '100%');
 				};
@@ -243,8 +243,6 @@
 		}
 		
 		function pixelToPercent(value, d){
-			// console.log(value +' '+ d);
-			// console.log(value/(d/100));
 			return value/(d/100);
 		}
 		
@@ -268,7 +266,6 @@
 				vars.maxObjs = 0;
 				vars.finishedObjs = 0;
 				
-				// console.log('prev '+vars.currentSlide);
 				startSlide();
 			}
 			
@@ -294,7 +291,7 @@
 				if(vars.currentSlide < 0){
 					vars.currentSlide = vars.maxSlide;
 				}
-				// console.log('prev '+vars.currentSlide);
+				
 				startSlide();
 			}
 			
@@ -319,7 +316,7 @@
 				if(vars.currentSlide > vars.maxSlide){
 					vars.currentSlide = 0;
 				}
-				// console.log('next '+vars.currentSlide);
+				
 				startSlide();
 			}
 			
@@ -350,10 +347,8 @@
 				vars.init = false;
 			}
 			
-		    // console.log('TIMEOUT');
 			// timeout after slide is complete	
 			timeouts.push(setTimeout(function(){
-					// console.log('slide change:');
 					
 					// stops the slider after first slide (only when slide count = 1)
 					if(vars.maxSlide == 0 && vars.running == true){
@@ -381,7 +376,6 @@
 				vars.currentSlide = 0;
 				slide = slider.children('.slide:eq('+vars.currentSlide+')');
 			}
-			// console.log(' start slide: '+vars.currentSlide);
 			
 			if(options['pager']){
 				pager.removeClass('active');
@@ -406,9 +400,7 @@
 				return;
 			}
 			var slideObj = slider.children('.slide:eq('+slide+')');
-			
-			// console.log(' end slide: '+slide);
-			
+						
 			var objs = slideObj.children();
 			
 			objs.each(function(){
@@ -447,7 +439,6 @@
 			});
 			
 			vars.maxStep = maximum;
-			// console.log('  max steps: '+ vars.maxStep);
 		}
 		
 		function iterateSteps(){
@@ -532,9 +523,6 @@
 			if(obj.attr('rel') == vars.currentSlide){
 				vars.finishedObjs++;
 
-				//console.log('  finished: '+vars.finishedObjs +"/"+ vars.maxObjs + ' - ' + vars.currentSlide + "/"+obj.attr('rel'));
-				//console.log($(obj));
-
 				if(vars.finishedObjs == vars.maxObjs){
 					slider.trigger('fraction:stepFinished');
 				}	
@@ -558,7 +546,6 @@
 				case 'left':
 					startY = position[0];
 					startX = sliderWidth;
-					console.log();
 					break;
 				case 'bottomLeft':
 					startY = sliderHeight;
@@ -803,7 +790,7 @@
 		
 		function backgroundAnimation(){
 			if(options['backgroundElement'] == null || options['backgroundElement'] == ""){
-				var el = slider;
+				var el = slider.parent();
 			}else{
 				var el = $(options['backgroundElement']);
 			}
