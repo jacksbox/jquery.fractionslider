@@ -29,7 +29,7 @@
     ],
     "homepage": "http://fractionslider.jacksbox.de",
     "demo": "http://fractionslider.jacksbox.de",
-    "docs": "http://fractionslider.jacksbox.de/documentation",
+    "docs": "http://jacksbox.de/stuff/jquery-fractionslider/documentation/",
     "dependencies": {
         "jquery": ">=1.8"
     }
