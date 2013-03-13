@@ -1,5 +1,5 @@
 /*
- * jQuery Fraction Slider v0.8.0
+ * jQuery Fraction Slider v0.8.2
  * http://fractionslider.jacksbox.de
  *
  * Author: Mario Jäckle
@@ -710,6 +710,17 @@
 					break;
 			}
 			
+			if(targetY != null){
+				if(targetY.toString().indexOf('px') > 0){
+					targetY = targetY.substring(0,targetY.length - 2);
+				}
+			}
+			if(targetX != null){
+				if(targetX.toString().indexOf('px') > 0){
+					targetX = targetX.substring(0,targetX.length - 2);
+				}
+			}
+			
 			// get speed for the out transition
 			if((speed == null && transition != 'fade') || (speed == null && transition != 'none')){
 				var pL = null, pT = null, ms = null;
@@ -723,10 +734,13 @@
 					pL = position['left'];
 					pT = position['top'];
 				}
+				
+				
+				
 				if(pL>targetX){
 					distX = Math.abs(pL-targetX);
 				}else
-				if(pL>targetX){
+				if(targetX>pL){
 					distX = Math.abs(targetX-pL);
 				}else{
 					distX = 0;
@@ -750,14 +764,22 @@
 			}else{
 				speed = options['speedOut'];
 			}	
-						
-			if(options['responsive']){
-				targetX = targetX+'%';
-				targetY = targetY+'%';
-			}else{
-				targetX = targetX+'px';
-				targetY = targetY+'px';
-			}			
+				
+			
+			if(targetX != null){		
+				if(options['responsive']){
+					targetX = targetX+'%';
+				}else{
+					targetX = targetX+'px';
+				}
+			}
+			if(targetY != null){		
+				if(options['responsive']){
+					targetY = targetY+'%';
+				}else{
+					targetY = targetY+'px';
+				}
+			}		
 			
 			if(transition == 'fade'){
 				// fade
