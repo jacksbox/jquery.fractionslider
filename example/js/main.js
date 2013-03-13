@@ -1,6 +1,8 @@
 $(window).load(function(){
 	$('.slider').fractionSlider({
-		'fullWidth': 			true
+		'fullWidth': 			true,
+		'controls': 			true, 
+		'pager': 				true
 	});
 
 });
