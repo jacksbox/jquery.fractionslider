@@ -1,5 +1,5 @@
 /*
- * jQuery Fraction Slider v0.8.2
+ * jQuery Fraction Slider v0.8.3
  * http://fractionslider.jacksbox.de
  *
  * Author: Mario Jäckle
@@ -862,8 +862,10 @@
 		  'dimensions'					: '',					// default background animation easing
 		}, options);
 		
-		// ready for take-off 
-		var slider = new FractionSlider(this, options);
+		return this.each(function(){
+			// ready for take-off 
+			var slider = new FractionSlider(this, options);
+		});
   	};
 
 	/** ************************* **/
