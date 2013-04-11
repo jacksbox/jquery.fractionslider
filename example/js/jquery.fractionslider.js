@@ -68,7 +68,8 @@
 				
 				slider.find('.next').bind('click', function(){return nextBtnPressed()
 				})
-				slider.find('.prev').bind('click', function(){return prevBtnPressed()});
+				slider.find('.prev').bind('click', function(){return prevBtnPressed()
+				});
 			}
 			
 			// pager
@@ -111,22 +112,92 @@
 			
 			// all importent stuff is done, everybody has taken a shower, we can go
 			// starts the slider and the slide rotation
-			slideRotation();
+			cycle('slide');
 		}
 		
 		/** ************************* **/
 		/** METHODES **/
 		/** ************************* **/
 		
-		function start(){}
+		function start(){
+			vars.stop = false;
+			vars.pause = false;
+			
+			nextSlide();
+		}
 		
-		function stop(){}
+		function pause(){
+			vars.pause = true;
+			slider.find('.fs-animation').finish();
+		}
 		
-		function resume(){}
+		function stop(){
+			vars.stop = true;
+			slider.find('.fs_obj').stop(true, true).removeClass('fs-animation');
+			stopTimeouts(timeouts);
+		}
 		
-		function nextSlide(){}
+		function resume(){
+			vars.stop = false;
+			vars.pause = false;
+			
+			if(vars.finishedObjs < vars.maxObjs){
+				cycle('obj');
+			}else
+			if(vars.finishedObjs < vars.maxStep){
+				cycle('step');
+			}else{
+				cycle('slide');
+			}
+		}
 		
-		function prevSlide(){}
+		function nextSlide(){
+			vars.init = true;
+			
+			endSlide(vars.currentSlide);
+			
+			vars.currentSlide++;
+			console.log(vars.currentSlide +" "+ vars.maxSlide);
+			if(vars.currentSlide > vars.maxSlide){
+				vars.currentSlide = 0;
+			}
+			vars.stop = false;
+			vars.pause = false;
+			
+			startSlide();
+		}
+		
+		function prevSlide(){
+			vars.init = true;
+			
+			endSlide(vars.currentSlide);
+			
+			vars.currentSlide--;
+			
+			if(vars.currentSlide < 0){
+				vars.currentSlide = vars.maxSlide;
+			}
+			vars.stop = false;
+			vars.pause = false;
+			
+			startSlide();
+		}
+		
+		function targetSlide(slide){
+			vars.init = true;
+			
+			endSlide(vars.currentSlide);
+			
+			vars.currentSlide = slide;
+			
+			if(vars.currentSlide < 0){
+				vars.currentSlide = vars.maxSlide;
+			}
+			vars.stop = false;
+			vars.pause = false;
+			
+			startSlide();
+		}
 		
 		/** ************************* **/
 		/** RESPONSIVE **/
@@ -265,77 +336,25 @@
 		/** ************************* **/
 		
 		function pagerPressed(el){
-			if(vars.controlsActive){
-				vars.controlsActive = false;
-				stopTimeouts(timeouts);
-				slider.find('.slide *').stop(true, true);
-			
-				endSlide(vars.currentSlide);
-				
-				vars.currentSlide = $(el).attr('rel');
-				
-				vars.currentStep = 0;
-				vars.maxStep = 0;
-				vars.currentObj = 0;
-				vars.maxObjs = 0;
-				vars.finishedObjs = 0;
-				
-				startSlide();
-			}
-			
+			stop();
+			targetSlide($(el).attr('rel'));
 			return false;
 		}
 		
 		function prevBtnPressed(){
-			if(vars.controlsActive){
-				vars.controlsActive = false;
-				stopTimeouts(timeouts);
-				slider.find('.slide *').stop(true, true);
-				
-				endSlide(vars.currentSlide);
-				
-				vars.currentSlide--;
-				
-				vars.currentStep = 0;
-				vars.maxStep = 0;
-				vars.currentObj = 0;
-				vars.maxObjs = 0;
-				vars.finishedObjs = 0;
-				
-				if(vars.currentSlide < 0){
-					vars.currentSlide = vars.maxSlide;
-				}
-				
-				startSlide();
-			}
-			
+			stop();
+			prevSlide();
 			return false;
 		}
 		function nextBtnPressed(){
-			if(vars.controlsActive){
-				vars.controlsActive = false;
-				stopTimeouts(timeouts);
-				slider.find('.slide *').stop(true, true);
-				
-				endSlide(vars.currentSlide);
-				
-				vars.currentSlide++;
-			
-				vars.currentStep = 0;
-				vars.maxStep = 0;
-				vars.currentObj = 0;
-				vars.maxObjs = 0;
-				vars.finishedObjs = 0;
-				
-				if(vars.currentSlide > vars.maxSlide){
-					vars.currentSlide = 0;
-				}
-				
-				startSlide();
-			}
-			
+			stop();
+			nextSlide();
 			return false;
 		}
+		
+		/** ************************* **/
+		/** HELPER **/
+		/** ************************* **/
 		
 		function stopTimeout(timeout){
 			clearTimeout(timeout);
@@ -350,10 +369,35 @@
 				}
 			});
 		}
+
+		/** ************************* **/
+		/** CYCLE CONTROLLER **/
+		/** ************************* **/
+		
+		function cycle(type){
+			
+			if(!vars.pause && !vars.stop){
+				switch(type){
+					case "slide":
+					    slideRotation();
+						break;
+					case "step":
+						iterateSteps();
+					 	break;	
+					case "obj":
+						iterateObjs();
+						break;
+				}
+			}
+		}
 		
 		/** ************************* **/
 		/** SLIDES **/
 		/** ************************* **/
+		
+		function resetSlide(){
+			
+		};
 		
 		function slideRotation(){
 			// set timeout | first slide instant start
@@ -367,7 +411,6 @@
 			
 			// timeout after slide is complete	
 			timeouts.push(setTimeout(function(){
-					
 					// stops the slider after first slide (only when slide count = 1)
 					if(vars.maxSlide == 0 && vars.running == true){
 						// TODO: better solution!
@@ -383,7 +426,7 @@
 		
 		// starts a slide
 		function startSlide(){
-			
+			console.log(vars.currentSlide);
 			if(options['backgroundAnimation']){
 				backgroundAnimation()
 			};
@@ -405,17 +448,18 @@
 			slide.css({'display':'block'});
 			slide.children().hide();
 			
+			vars.currentStep = 0;
 			vars.currentObj = 0;
 			vars.maxObjs = 0;
 			vars.finishedObjs = 0;
 			
-			iterateSteps();
+			cycle('step');
 		}
 		
 		// ends a slide
 		function endSlide(slide){
 			if(slide < 0){
-				return;
+				slide = vars.maxSlide;
 			}
 			var slideObj = slider.children('.slide:eq('+slide+')');
 						
@@ -438,7 +482,6 @@
 				moveObjectOut(obj, position, transition, null,easing);
 			}).promise().done(function(){
 				slideObj.hide(); 
-				vars.controlsActive = true;
 			});
 		}
 		
@@ -460,7 +503,6 @@
 		}
 		
 		function iterateSteps(){
-			
 			if(vars.currentStep == 0){
 				var objs = slider.children('.slide:eq('+vars.currentSlide+')').children('*:not([data-step]), *[data-step="'+vars.currentStep+'"]');
 			}else{
@@ -476,7 +518,7 @@
 				vars.currentObj = 0;
 				vars.finishedObjs = 0;
 				
-				iterateObjs();
+				cycle('obj');
 			}else{	
 				slider.trigger('fraction:stepFinished');
 			}
@@ -489,12 +531,12 @@
 					vars.currentSlide++;
 					vars.currentStep = 0;
 			
-					slideRotation();
+					cycle('slide');
 				}
 			
 				return;
 			}
-			iterateSteps();
+			cycle('step');
 		}
 		
 		slider.bind('fraction:stepFinished', function(){
@@ -507,6 +549,8 @@
 		
 		function iterateObjs(){
 			var obj = $(fractionObjs[vars.currentObj]);
+
+			obj.addClass('fs-animation');
 
 			var position = obj.attr("data-position");
 			var transition = obj.attr("data-in");
@@ -535,16 +579,17 @@
 			vars.currentObj++;
 			
 			if(vars.currentObj < vars.maxObjs){
-				iterateObjs();
+				cycle('obj');
 			}else{
 				vars.currentObj = 0;
 			}
 		}
 		
 		function objFinished(obj){
+			obj.removeClass('fs-animation');
+			
 			if(obj.attr('rel') == vars.currentSlide){
 				vars.finishedObjs++;
-
 				if(vars.finishedObjs == vars.maxObjs){
 					slider.trigger('fraction:stepFinished');
 				}	
