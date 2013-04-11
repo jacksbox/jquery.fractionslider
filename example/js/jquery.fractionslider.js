@@ -115,6 +115,20 @@
 		}
 		
 		/** ************************* **/
+		/** METHODES **/
+		/** ************************* **/
+		
+		function start(){}
+		
+		function stop(){}
+		
+		function resume(){}
+		
+		function nextSlide(){}
+		
+		function prevSlide(){}
+		
+		/** ************************* **/
 		/** RESPONSIVE **/
 		/** ************************* **/
 		
@@ -253,7 +267,7 @@
 		function pagerPressed(el){
 			if(vars.controlsActive){
 				vars.controlsActive = false;
-				stopTimeouts();
+				stopTimeouts(timeouts);
 				slider.find('.slide *').stop(true, true);
 			
 				endSlide(vars.currentSlide);
@@ -275,7 +289,7 @@
 		function prevBtnPressed(){
 			if(vars.controlsActive){
 				vars.controlsActive = false;
-				stopTimeouts();
+				stopTimeouts(timeouts);
 				slider.find('.slide *').stop(true, true);
 				
 				endSlide(vars.currentSlide);
@@ -300,7 +314,7 @@
 		function nextBtnPressed(){
 			if(vars.controlsActive){
 				vars.controlsActive = false;
-				stopTimeouts();
+				stopTimeouts(timeouts);
 				slider.find('.slide *').stop(true, true);
 				
 				endSlide(vars.currentSlide);
@@ -323,7 +337,11 @@
 			return false;
 		}
 		
-		function stopTimeouts(){
+		function stopTimeout(timeout){
+			clearTimeout(timeout);
+		}
+
+		function stopTimeouts(timeouts){
 			var length = timeouts.length;
 			$.each(timeouts,function(index){
 				clearTimeout(this);
@@ -464,19 +482,23 @@
 			}
 		}
 		
-		slider.bind('fraction:stepFinished', function(){
+		function stepFinished(){
 			vars.currentStep++
 			if(vars.currentStep > vars.maxStep){
 				if(options['autoChange']){
 					vars.currentSlide++;
 					vars.currentStep = 0;
-
+			
 					slideRotation();
 				}
-				
+			
 				return;
 			}
 			iterateSteps();
+		}
+		
+		slider.bind('fraction:stepFinished', function(){
+			stepFinished();
 		});
 		
 		/** ************************* **/
@@ -585,7 +607,7 @@
 			
 			// #time
 			if(time == null){
-				speed =options['speedIn'];
+				speed = options['speedIn'];
 			}else{
 				speed = time - delay;
 			}
