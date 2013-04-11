@@ -21,16 +21,18 @@
 	var FractionSlider = function(element, options){
 		
 		var vars = {
-			init: true, 			// initialised the first time
-			running:false,			// currently running
-			controlsActive:true,	// currently running
-			currentSlide: 0,		// current slide number
-			maxSlide: 0,			// max slide number
-			currentStep: 0,			// current step number
-			maxStep: 0,				// current slide number
-			currentObj: 0,			// curent object number (in step)
-			maxObjs: 0,				// max object number (in step)
-			finishedObjs: 0			// finsihed objects (in step)
+			init: 			true, 	// initialised the first time
+			running: 		false,	// currently running
+			pause: 			false,
+			stop: 			false,
+			controlsActive: true,	// currently running
+			currentSlide: 	0,		// current slide number
+			maxSlide: 		0,		// max slide number
+			currentStep: 	0,		// current step number
+			maxStep: 		0,		// current slide number
+			currentObj: 	0,		// curent object number (in step)
+			maxObjs: 		0,		// max object number (in step)
+			finishedObjs: 	0		// finsihed objects (in step)
 		};
 		var timeouts = [];
 		
@@ -351,24 +353,6 @@
 			nextSlide();
 			return false;
 		}
-		
-		/** ************************* **/
-		/** HELPER **/
-		/** ************************* **/
-		
-		function stopTimeout(timeout){
-			clearTimeout(timeout);
-		}
-
-		function stopTimeouts(timeouts){
-			var length = timeouts.length;
-			$.each(timeouts,function(index){
-				clearTimeout(this);
-				if(index == length-1){
-					timeouts = [];
-				}
-			});
-		}
 
 		/** ************************* **/
 		/** CYCLE CONTROLLER **/
@@ -426,7 +410,7 @@
 		
 		// starts a slide
 		function startSlide(){
-			console.log(vars.currentSlide);
+			
 			if(options['backgroundAnimation']){
 				backgroundAnimation()
 			};
@@ -892,6 +876,25 @@
 			var y = Number(oldPos[1].replace(/[px,%]/g, '')) + moveY;
 			
 			el.animate({backgroundPositionX: x+'px', backgroundPositionY: y+'px'}, options['backgroundSpeed'], options['backgroundEase']);
+		}
+		
+		
+		/** ************************* **/
+		/** HELPER **/
+		/** ************************* **/
+		
+		function stopTimeout(timeout){
+			clearTimeout(timeout);
+		}
+
+		function stopTimeouts(timeouts){
+			var length = timeouts.length;
+			$.each(timeouts,function(index){
+				clearTimeout(this);
+				if(index == length-1){
+					timeouts = [];
+				}
+			});
 		}
 	}
 	
