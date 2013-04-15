@@ -15,9 +15,11 @@
 		<script>
 			$(window).load(function(){
 				$('.slider').fractionSlider({
-					'fullWidth': 			true,
+					'fullWidth': 			false,
 					'controls': 			true, 
-					'pager': 				true
+					'pager': 				true,
+					'dimensions': 			'1000,400',
+					'responsive': 			false,
 				});
         	
 			});
@@ -28,7 +30,7 @@
 			<div class="responisve-container">
 				<div class="slider">
 					<div class="fs_loader"></div>
-					<div class="slide">
+					<div class="slide" data-in="slideLeft" style="background:red;">
 						<img 	src="images/01_box_top.png"
 								width="361" height="354"			
 								data-position="-152,142" data-in="left" data-delay="200" data-out="right">
@@ -54,8 +56,9 @@
 						<img 	src="images/01_outofthebox.png" 
 								width="652" height="559"	
 								data-position="20,330" data-in="bottomLeft" data-delay="500" data-out="fade">
+						<p style="left: 0; width:100%; height:100%; background:grey" data-fixed="true">sdsdf</p>
 					</div>
-					<div class="slide">
+					<div class="slide" data-in="scrollRight" style="background:green">
 						<img 	src="images/02_big_boxes.png" 		
 								data-position="25,445" data-in="fade" data-delay="0" data-out="right">
 								
@@ -86,7 +89,7 @@
 						<img 	src="images/02_main.png" 
 								data-position="105,180" data-in="fade" data-delay="500" data-out="bottomRight">
 					</div>
-								<div class="slide">
+								<div class="slide"  data-in="slideTop" style="background:blue">
 									<img 	src="images/01_box_top.png"
 											width="361" height="354"			
 											data-position="-152,142" data-in="left" data-delay="200" data-out="right">
@@ -113,7 +116,7 @@
 											width="652" height="559"	
 											data-position="20,330" data-in="bottomLeft" data-delay="500" data-out="fade">
 								</div>
-								<div class="slide">
+								<div class="slide" data-in="scrollLeft" style="background:grey">
 									<img 	src="images/02_big_boxes.png" 		
 											data-position="25,445" data-in="fade" data-delay="0" data-out="right">
 

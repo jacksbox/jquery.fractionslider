@@ -27,6 +27,7 @@
 			stop: 			false,
 			controlsActive: true,	// currently running
 			currentSlide: 	0,		// current slide number
+			lastSlide: 		null,		// last slide number (for anim out)
 			maxSlide: 		0,		// max slide number
 			currentStep: 	0,		// current step number
 			maxStep: 		0,		// current slide number
@@ -34,6 +35,13 @@
 			maxObjs: 		0,		// max object number (in step)
 			finishedObjs: 	0		// finsihed objects (in step)
 		};
+		
+		// Here are Slide elements temporarily stored
+		var temp = {
+			currentSlide: 			null, 	// current Slide
+			lastSlide: 				null,	// last Slide (for anim out)
+		};
+		
 		var timeouts = [];
 		
 		var fractionObjs = null; 	// objs for current step
@@ -50,8 +58,9 @@
 		// some more needed vars
 		var sliderWidth = slider.width();
 		var bodyWidth = $('body').width();
-		var offsetX = (bodyWidth-sliderWidth)/2;
+		var offsetX = 0;
 		if(options['fullWidth']){
+	    	offsetX = (bodyWidth-sliderWidth)/2;
 			sliderWidth = bodyWidth;
 		}
 		var sliderHeight = slider.height();
@@ -73,12 +82,6 @@
 				slider.find('.prev').bind('click', function(){return prevBtnPressed()
 				});
 			}
-			
-			// pager
-			if(options['pager']){
-				pager = $('<div class="fs-pager-wrapper"></div>');
-				slider.append(pager);
-			}
 
 			// fullwidth setup
 			if(options['fullWidth']){
@@ -87,19 +90,25 @@
 				slider.css({'overflow': 'hidden'});
 			}
 			
+			// pager
+			if(options['pager']){
+				pager = $('<div class="fs-pager-wrapper"></div>');
+				slider.append(pager);
+			}
+			
 			slider.children('.slide').each(function(index){
 				var slide = $(this);
 				slide.children().attr('rel', index).addClass('fs_obj');
+				slide.children('[data-fixed]').addClass('fs_fixed_obj');
+				
 				// pager again
 				if(options['pager']){
-					pager.append('<a rel="'+index+'" href="#"></a>');
+					var tempObj = $('<a rel="'+index+'" href="#"></a>').bind('click', function(){return pagerPressed(this)});
+					pager.append(tempObj);
 				}	
 			});
-			
-			// pager again
 			if(options['pager']){
 				pager = $(pager).children('a');
-				pager.bind('click', function(){return pagerPressed(this)});
 			}
 			
 			// responisve
@@ -114,7 +123,7 @@
 			
 			// all importent stuff is done, everybody has taken a shower, we can go
 			// starts the slider and the slide rotation
-			cycle('slide');
+			start();
 		}
 		
 		/** ************************* **/
@@ -124,24 +133,42 @@
 		function start(){
 			vars.stop = false;
 			vars.pause = false;
+			vars.running = true;
+			
+			cycle('slide');
+		}
+		
+		function startNextSlide(){
+			vars.stop = false;
+			vars.pause = false;
+			vars.running = true;
 			
 			nextSlide();
 		}
 		
-		function pause(){
-			vars.pause = true;
-			slider.find('.fs-animation').finish();
-		}
-		
+		// use with start or startNextSlide
 		function stop(){
 			vars.stop = true;
+			vars.running = false;
+			
+			slider.find('.slide').stop(true, true);
 			slider.find('.fs_obj').stop(true, true).removeClass('fs-animation');
 			stopTimeouts(timeouts);
 		}
 		
+		// use with resume
+		function pause(){
+			vars.pause = true;
+			vars.running = false;
+			
+			slider.find('.fs-animation').finish();
+		}
+		
+		// use with pause
 		function resume(){
 			vars.stop = false;
 			vars.pause = false;
+			vars.running = true;
 			
 			if(vars.finishedObjs < vars.maxObjs){
 				cycle('obj');
@@ -155,182 +182,41 @@
 		
 		function nextSlide(){
 			vars.init = true;
-			
-			endSlide(vars.currentSlide);
-			
+						
+			vars.lastSlide = vars.currentSlide;
 			vars.currentSlide++;
-			console.log(vars.currentSlide +" "+ vars.maxSlide);
-			if(vars.currentSlide > vars.maxSlide){
-				vars.currentSlide = 0;
-			}
+			
 			vars.stop = false;
 			vars.pause = false;
+			vars.running = true;
 			
-			startSlide();
+			slideChangeControler();
 		}
 		
 		function prevSlide(){
 			vars.init = true;
 			
-			endSlide(vars.currentSlide);
-			
+			vars.lastSlide = vars.currentSlide;			
 			vars.currentSlide--;
 			
-			if(vars.currentSlide < 0){
-				vars.currentSlide = vars.maxSlide;
-			}
 			vars.stop = false;
 			vars.pause = false;
+			vars.running = true;
 			
-			startSlide();
+			slideChangeControler();
 		}
 		
 		function targetSlide(slide){
 			vars.init = true;
 			
-			endSlide(vars.currentSlide);
-			
+			vars.lastSlide = vars.currentSlide;
 			vars.currentSlide = slide;
 			
-			if(vars.currentSlide < 0){
-				vars.currentSlide = vars.maxSlide;
-			}
 			vars.stop = false;
 			vars.pause = false;
+			vars.running = true;
 			
-			startSlide();
-		}
-		
-		/** ************************* **/
-		/** RESPONSIVE **/
-		/** ************************* **/
-		
-		function makeResponsive(){
-			var d = options['dimensions'].split(',');
-			
-				dX = d['0'],
-				dY = d['1'];
-			
-			var objs = slider.children('.slide').find('*');
-			
-			objs.each(function(){
-				var obj = $(this),
-					x = null,
-					y = null,
-					value = null;
-				
-				// calculate % position	
-				if(obj.attr("data-position") != null){
-					var position = obj.attr("data-position").split(',');
-					
-					x = pixelToPercent(position[1], dX);
-					y = pixelToPercent(position[0], dY);
-					obj.attr("data-position", y+','+x);
-				}
-				
-				// calculate % width
-				if(obj.attr("width") != null){
-					value = obj.attr("width");
-					
-					x = pixelToPercent(value, dX);
-					obj.attr("width", x+"%");
-					obj.css("width", x+"%");
-				}else 
-				if(obj.css('width') != '0px'){
-					value = obj.css("width");
-					if(value.indexOf('px') > 0){
-						value = value.substring(0,value.length - 2);
-						x = pixelToPercent(value, dX);
-						obj.css("width", x+"%");
-					};
-				}else
-				if(obj.prop("tagName").toLowerCase() == 'img'){
-					value = obj.get(0).width;
-					x = pixelToPercent(value, dX);
-					obj.css("width", x+"%");
-				}
-				
-				// calculate % height
-				if(obj.attr("height") != null){
-					value = obj.attr("height");
-					
-					y = pixelToPercent(value, dY);
-					obj.attr("height", y+"%");
-					obj.css("height", y+"%");
-				}else
-				if(obj.css('height') != '0px'){
-					value = obj.css("height");
-					if(value.indexOf('px') > 0){
-						value = value.substring(0,value.length - 2);
-						y = pixelToPercent(value, dY);
-						obj.css("height", y+"%");
-					};
-				}else
-				if(obj.prop("tagName").toLowerCase() == 'img'){
-					value = obj.get(0).height;
-					y = pixelToPercent(value, dY);
-					obj.css("height", y+"%");
-				}
-				
-				obj.attr('data-fontsize', obj.css('font-size'));
-				
-			});
-			
-			slider.css({'width': 'auto', 'height': 'auto'}).append('<div class="fs-stretcher" style="width:'+dX+'px; height:'+dY+'px"></div>');
-			
-			resizeSlider();
-			
-			$(window).bind('resize', function(){
-				resizeSlider();
-			});
-		}
-		
-		function resizeSlider(){
-			var w = slider.innerWidth(),
-				h = slider.innerHeight();
-			if(w < dX){
-				var xy = dX/dY,
-					nH = w/xy;
-				slider.find('.fs-stretcher').css({'width': w+'px','height': nH+"px"});	
-			}
-			
-			// calculate the width/height/offsetX of the slider
-			var sW = slider.width();
-			offsetX = pixelToPercent(((bodyWidth-sW)/2), dX);
-			sliderWidth = 100;
-			if(options['fullWidth']){
-				sliderWidth = 100 + offsetX*2;
-			}
-			sliderHeight = 100;
-			
-			if(vars.init == false || w < dX){
-				resizeFontSize();
-			}
-		}
-		
-		function resizeFontSize(){
-			var value = null,
-				n = null;
-			var objs = slider.children('.slide').find('*');
-			
-			objs.each(function(){
-				obj = $(this);
-				
-				var value = obj.attr('data-fontsize');
-				
-				if(value.indexOf('px') > 0){
-					value = value.substring(0,value.length - 2);
-					n = pixelToPercent(value, dY) * (slider.find('.fs-stretcher').height()/100);
-					obj.css("fontSize", n+"px");
-					obj.css("lineHeight", '100%');
-				};
-				
-				
-			});
-		}
-		
-		function pixelToPercent(value, d){
-			return value/(d/100);
+			slideChangeControler();
 		}
 		
 		/** ************************* **/
@@ -360,7 +246,7 @@
 		
 		function cycle(type){
 			
-			if(!vars.pause && !vars.stop){
+			if(!vars.pause && !vars.stop && vars.running){
 				switch(type){
 					case "slide":
 					    slideRotation();
@@ -379,18 +265,14 @@
 		/** SLIDES **/
 		/** ************************* **/
 		
-		function resetSlide(){
-			
-		};
-		
 		function slideRotation(){
+			var timeout = 0;
 			// set timeout | first slide instant start
 			if(vars.init){
-				var timeout = 0;
+				timeout = 0;
 				vars.init = false;
 			}else{
-				var timeout = options['timeout'];
-				vars.init = false;
+				timeout = options['timeout'];
 			}
 			
 			// timeout after slide is complete	
@@ -399,28 +281,103 @@
 					if(vars.maxSlide == 0 && vars.running == true){
 						// TODO: better solution!
 					}else{
-						endSlide(vars.currentSlide-1);
-						startSlide();
-						vars.running = true;
+						slideChangeControler();
 					}
 				}, 
 				timeout
 			));
 		}
 		
-		// starts a slide
-		function startSlide(){
+		function slideChangeControler(){
+			$('.active-slide').removeClass('active-slide');
 			
+			if(vars.currentSlide > vars.maxSlide){
+				vars.currentSlide = 0;
+			}
+			
+			temp.currentSlide = slider.children('.slide:eq('+vars.currentSlide+')').addClass('active-slide');
+			
+			if(temp.currentSlide.length == 0){
+				vars.currentSlide = 0;
+				temp.currentSlide = slider.children('.slide:eq('+vars.currentSlide+')');
+			}
+			
+			if(vars.lastSlide != null){
+				if(vars.lastSlide < 0){
+					vars.lastSlide = vars.maxSlide;
+				}
+				
+				temp.lastSlide = slider.children('.slide:eq('+vars.lastSlide+')');
+			}
+			
+			var animation = temp.currentSlide.attr("data-in");
+
+			if(animation == null){
+				animation = options['slideTransition'];
+			}
+			
+			if(options['slideEndAnimation'] && vars.lastSlide != null){
+				switch(animation){
+					case 'scrollLeft':
+						startSlide(animation);
+						endSlide(animation);
+						break;
+					case 'scrollRight':
+						startSlide(animation);
+						endSlide(animation);
+						break;
+					case 'scrollTop':
+						startSlide(animation);
+						endSlide(animation);
+						break;
+					case 'scrollBottom':
+						startSlide(animation);
+						endSlide(animation);
+						break;
+					default:
+						startSlide(animation);
+						break;
+				}
+			}else{
+				switch(animation){
+					case 'none':
+						startSlide(animation);
+						endSlide(animation);
+						break;
+					case 'scrollLeft':
+						startSlide(animation);
+						endSlide(animation);
+						break;
+					case 'scrollRight':
+						startSlide(animation);
+						endSlide(animation);
+						break;
+					case 'scrollTop':
+						startSlide(animation);
+						endSlide(animation);
+						break;
+					case 'scrollBottom':
+						startSlide(animation);
+						endSlide(animation);
+						break;
+					default:
+						startSlide(animation);
+						break;
+				}
+			}
+		}
+		
+		// starts a slide
+		function startSlide(animation){	
+			animation = temp.currentSlide.attr("data-in");
+
+			if(animation == null){
+				animation = options['slideTransition'];
+			}			
+				
 			if(options['backgroundAnimation']){
 				backgroundAnimation()
 			};
-			
-			var slide = slider.children('.slide:eq('+vars.currentSlide+')');
-			
-			if(slide.length == 0){
-				vars.currentSlide = 0;
-				slide = slider.children('.slide:eq('+vars.currentSlide+')');
-			}
 			
 			if(options['pager']){
 				pager.removeClass('active');
@@ -429,45 +386,65 @@
 			
 			getStepsForSlide();
 			
-			slide.css({'display':'block'});
-			slide.children().hide();
+			temp.currentSlide.children().hide();
 			
 			vars.currentStep = 0;
 			vars.currentObj = 0;
 			vars.maxObjs = 0;
 			vars.finishedObjs = 0;
 			
-			cycle('step');
+			temp.currentSlide.children("[data-fixed]").show();
+			
+			slideAnimationIn(animation);
 		}
 		
-		// ends a slide
-		function endSlide(slide){
-			if(slide < 0){
-				slide = vars.maxSlide;
+		slider.bind('fraction:startSlideComplete', function(){
+			if(temp.lastSlide != null){
+				temp.lastSlide.hide();
 			}
-			var slideObj = slider.children('.slide:eq('+slide+')');
-						
-			var objs = slideObj.children();
+			cycle('step');
+		});
+		
+		// ends a slide
+		function endSlide(animation){
 			
-			objs.each(function(){
-				var obj = $(this);
-				var position = obj.position();
-				var transition = obj.attr("data-out");
-				var easing = obj.attr("data-ease-out");
-				
-				if(transition == null){
-					transition = options['transitionOut'];
-				}
-				
-				if(easing == null){
-					easing = options['easeOut'];
-				}
-				
-				moveObjectOut(obj, position, transition, null,easing);
-			}).promise().done(function(){
-				slideObj.hide(); 
-			});
+			if(temp.lastSlide == null){
+				return;
+			}		
+			
+			if(animation == 'none' || options['slideEndAnimation']){
+				var objs = temp.lastSlide.children();
+
+				objs.each(function(){
+					var obj = $(this);
+					var position = obj.position();
+					var transition = obj.attr("data-out");
+					var easing = obj.attr("data-ease-out");
+
+					if(transition == null){
+						transition = options['transitionOut'];
+					}
+
+					if(easing == null){
+						easing = options['easeOut'];
+					}
+
+					moveObjectOut(obj, position, transition, null,easing);
+				}).promise().done(function(){		
+					slideAnimationOut(animation);	
+				});
+			}else{
+				slideAnimationOut(animation);
+			}
 		}
+		
+		slider.bind('fraction:endSlideComplete', function(){
+			if(options['slideEndAnimation']){
+				startSlide();
+			}else{
+				temp.lastSlide.hide();
+			}
+		});
 		
 		/** ************************* **/
 		/** STEPS **/
@@ -475,7 +452,7 @@
 		
 		// gets the maximum step for the current slide
 		function getStepsForSlide(){
-			var objs = slider.children('.slide:eq('+vars.currentSlide+')').children();
+			var objs = temp.currentSlide.children();
 			var maximum = 0;
 			
 			objs.each(function() {
@@ -488,9 +465,9 @@
 		
 		function iterateSteps(){
 			if(vars.currentStep == 0){
-				var objs = slider.children('.slide:eq('+vars.currentSlide+')').children('*:not([data-step]), *[data-step="'+vars.currentStep+'"]');
+				var objs = temp.currentSlide.children('*:not([data-step]):not([data-fixed]), *[data-step="'+vars.currentStep+'"]:not([data-fixed])');
 			}else{
-				var objs = slider.children('.slide:eq('+vars.currentSlide+')').children('*[data-step="'+vars.currentStep+'"]');
+				var objs = temp.currentSlide.children('*[data-step="'+vars.currentStep+'"]:not([data-fixed])');
 			}
 			
 			vars.maxObjs = objs.length;
@@ -512,6 +489,7 @@
 			vars.currentStep++
 			if(vars.currentStep > vars.maxStep){
 				if(options['autoChange']){
+					vars.lastSlide = vars.currentSlide;
 					vars.currentSlide++;
 					vars.currentStep = 0;
 			
@@ -584,7 +562,145 @@
 		/** TRANSITIONS **/
 		/** ************************* **/
 		
-		/** IN TRANSITION **/
+		/** TRANSITION SLIDES **/
+		
+		function slideAnimationIn(animation){
+			var cssStart = {},
+			    cssEnd = {};
+			
+			var speed = options['slideTransitionSpeed'];
+			
+			if(options['responsive']){
+				unit = '%';
+			}else{
+				unit = 'px';
+			}
+			
+			switch(animation){
+				case 'slideLeft':
+					cssStart.left = sliderWidth + unit;
+					cssStart.top = 0 + unit;
+					cssStart.display = 'block';
+					cssEnd.left = 0 + unit;
+					cssEnd.top = 0 + unit;
+					break;
+				case 'slideTop':
+					cssStart.left = 0 + unit;
+					cssStart.top = 0 - sliderHeight + unit;
+					cssStart.display = 'block';
+					cssEnd.left = 0 + unit;
+					cssEnd.top = 0 + unit;
+					break;
+				case 'slideBottom':
+					cssStart.left = 0 + unit;
+					cssStart.top = sliderHeight + unit;
+					cssStart.display = 'block';
+					cssEnd.left = 0 + unit;
+					cssEnd.top = 0 + unit;
+					break;
+				case 'slideRight':
+					cssStart.left = 0 - sliderWidth + unit;
+					cssStart.top = 0 + unit;
+					cssStart.display = 'block';
+					cssEnd.left = 0 + unit;
+					cssEnd.top = 0 + unit;
+					break;
+				case 'fade':
+					cssStart.left = 0 + unit;
+					cssStart.top = 0 + unit;
+					cssStart.display = 'block';
+					cssStart.opacity = 0;
+					cssEnd.opacity = 1;
+					break;
+				case 'none':
+					cssStart.left = 0 + unit;
+					cssStart.top = 0 + unit;
+					cssStart.display = 'block';
+					speed = 0;
+					break;
+				case 'scrollLeft':
+					cssStart.left = sliderWidth + unit;
+					cssStart.top = 0 + unit;
+					cssStart.display = 'block';
+					cssEnd.left = 0 + unit;
+					cssEnd.top = 0 + unit;
+					break;
+				case 'scrollTop':
+					cssStart.left = 0 + unit;
+					cssStart.top = 0 - sliderHeight + unit;
+					cssStart.display = 'block';
+					cssEnd.left = 0 + unit;
+					cssEnd.top = 0 + unit;
+					break;
+				case 'scrollBottom':
+					cssStart.left = 0 + unit;
+					cssStart.top = sliderHeight + unit;
+					cssStart.display = 'block';
+					cssEnd.left = 0 + unit;
+					cssEnd.top = 0 + unit;
+					break;
+				case 'scrollRight':
+					cssStart.left = 0 - sliderWidth+ unit;
+					cssStart.top = 0 + unit;
+					cssStart.display = 'block';
+					cssEnd.left = 0 + unit;
+					cssEnd.top = 0 + unit;
+					break;
+			}
+			
+			temp.currentSlide.css(cssStart).animate(cssEnd, speed, 'linear',
+		   		 function(){
+					slider.trigger('fraction:startSlideComplete');
+		   		 	}
+			);
+		}
+		function slideAnimationOut(animation){
+			var cssStart = {},
+				cssEnd = {};
+			
+			var speed = options['slideTransitionSpeed'];
+			var unit = null;
+			
+			if(options['responsive']){
+				unit = '%';
+			}else{
+				unit = 'px';
+			}
+			
+			switch(animation){
+				case 'none':
+					cssStart.display = 'none';
+					speed = 0
+					break;
+				case 'scrollLeft':
+					cssEnd.left = 0 - sliderWidth + unit;
+					cssEnd.top = 0 + unit;
+					break;
+				case 'scrollTop':
+					cssEnd.left = 0 + unit;
+					cssEnd.top = sliderHeight + unit;
+					break;
+				case 'scrollBottom':
+					cssEnd.left = 0 + unit;
+					cssEnd.top = 0 - sliderHeight + unit;
+					break;
+				case 'scrollRight':
+					cssEnd.left = sliderWidth + unit;
+					cssEnd.top = 0 + unit;
+					break;
+				default:
+					speed = 0;
+					break;
+			}
+			
+			temp.lastSlide.animate(cssEnd, speed, 'linear',
+		   		 function(){
+					slider.trigger('fraction:endSlideComplete');
+		   		 	}
+			);
+		}
+		
+		/** IN TRANSITION OBJECTS **/
 		function moveObjectIn(obj, position, transition, delay, time, easing, special){
 			var startY = null;
 			var startX = null;
@@ -702,7 +818,7 @@
 			},delay));
 		}
 		
-		/** OUT TRANSITION **/
+		/** OUT TRANSITION OBJECTS **/
 		function moveObjectOut(obj, position, transition, speed, easing){
 			var targetY = null;
 			var targetX = null;
@@ -880,6 +996,139 @@
 		
 		
 		/** ************************* **/
+		/** RESPONSIVE **/
+		/** ************************* **/
+		
+		function makeResponsive(){
+			var d = options['dimensions'].split(',');
+			
+				dX = d['0'],
+				dY = d['1'];
+			
+			var objs = slider.children('.slide').find('*');
+			
+			objs.each(function(){
+				var obj = $(this),
+					x = null,
+					y = null,
+					value = null;
+				
+				// calculate % position	
+				if(obj.attr("data-position") != null){
+					var position = obj.attr("data-position").split(',');
+					
+					x = pixelToPercent(position[1], dX);
+					y = pixelToPercent(position[0], dY);
+					obj.attr("data-position", y+','+x);
+				}
+				
+				// calculate % width
+				if(obj.attr("width") != null){
+					value = obj.attr("width");
+					
+					x = pixelToPercent(value, dX);
+					obj.attr("width", x+"%");
+					obj.css("width", x+"%");
+				}else 
+				if(obj.css('width') != '0px'){
+					value = obj.css("width");
+					if(value.indexOf('px') > 0){
+						value = value.substring(0,value.length - 2);
+						x = pixelToPercent(value, dX);
+						obj.css("width", x+"%");
+					};
+				}else
+				if(obj.prop("tagName").toLowerCase() == 'img'){
+					value = obj.get(0).width;
+					x = pixelToPercent(value, dX);
+					obj.css("width", x+"%");
+				}
+				
+				// calculate % height
+				if(obj.attr("height") != null){
+					value = obj.attr("height");
+					
+					y = pixelToPercent(value, dY);
+					obj.attr("height", y+"%");
+					obj.css("height", y+"%");
+				}else
+				if(obj.css('height') != '0px'){
+					value = obj.css("height");
+					if(value.indexOf('px') > 0){
+						value = value.substring(0,value.length - 2);
+						y = pixelToPercent(value, dY);
+						obj.css("height", y+"%");
+					};
+				}else
+				if(obj.prop("tagName").toLowerCase() == 'img'){
+					value = obj.get(0).height;
+					y = pixelToPercent(value, dY);
+					obj.css("height", y+"%");
+				}
+				
+				obj.attr('data-fontsize', obj.css('font-size'));
+				
+			});
+			
+			slider.css({'width': 'auto', 'height': 'auto'}).append('<div class="fs-stretcher" style="width:'+dX+'px; height:'+dY+'px"></div>');
+			
+			resizeSlider();
+			
+			$(window).bind('resize', function(){
+				resizeSlider();
+			});
+		}
+		
+		function resizeSlider(){
+			var w = slider.innerWidth(),
+				h = slider.innerHeight();
+			if(w < dX){
+				var xy = dX/dY,
+					nH = w/xy;
+				slider.find('.fs-stretcher').css({'width': w+'px','height': nH+"px"});	
+			}
+			
+			// calculate the width/height/offsetX of the slider
+			var sW = slider.width();
+			offsetX = pixelToPercent(((bodyWidth-sW)/2), dX);
+			sliderWidth = 100;
+			if(options['fullWidth']){
+				sliderWidth = 100 + offsetX*2;
+			}
+			sliderHeight = 100;
+			
+			if(vars.init == false || w < dX){
+				resizeFontSize();
+			}
+		}
+		
+		function resizeFontSize(){
+			var value = null,
+				n = null;
+			var objs = slider.children('.slide').find('*');
+			
+			objs.each(function(){
+				obj = $(this);
+				
+				var value = obj.attr('data-fontsize');
+				
+				if(value.indexOf('px') > 0){
+					value = value.substring(0,value.length - 2);
+					n = pixelToPercent(value, dY) * (slider.find('.fs-stretcher').height()/100);
+					obj.css("fontSize", n+"px");
+					obj.css("lineHeight", '100%');
+				};
+				
+				
+			});
+		}
+		
+		function pixelToPercent(value, d){
+			return value/(d/100);
+		}
+		
+		
+		/** ************************* **/
 		/** HELPER **/
 		/** ************************* **/
 		
@@ -906,6 +1155,9 @@
 	
 		// defaults & options
 		var options = $.extend( {
+		  'slideTransition'				: 'none',				// default slide transition
+		  'slideTransitionSpeed'		: 2000,				// default slide transition
+		  'slideEndAnimation'			: false,				// if set true, objects will transition out at slide end (before the slideTransition is called)
 		  'position'					: '0,0',				// default position | should never be used
 		  'transitionIn'        		: 'left',				// default in - transition
 		  'transitionOut' 				: 'left',				// default out - transition
