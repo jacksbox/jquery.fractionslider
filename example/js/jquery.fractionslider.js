@@ -1,5 +1,5 @@
 /*
- * jQuery Fraction Slider v0.8.3
+ * jQuery Fraction Slider v0.9.1
  * http://fractionslider.jacksbox.de
  *
  * Author: Mario Jäckle
@@ -1156,8 +1156,8 @@
 		// defaults & options
 		var options = $.extend( {
 		  'slideTransition'				: 'none',				// default slide transition
-		  'slideTransitionSpeed'		: 2000,				// default slide transition
-		  'slideEndAnimation'			: false,				// if set true, objects will transition out at slide end (before the slideTransition is called)
+		  'slideTransitionSpeed'		: 2000,				    // default slide transition
+		  'slideEndAnimation'			: true,				    // if set true, objects will transition out at slide end (before the slideTransition is called)
 		  'position'					: '0,0',				// default position | should never be used
 		  'transitionIn'        		: 'left',				// default in - transition
 		  'transitionOut' 				: 'left',				// default out - transition
