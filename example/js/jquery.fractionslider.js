@@ -429,7 +429,7 @@
 						easing = options['easeOut'];
 					}
 
-					moveObjectOut(obj, position, transition, null,easing);
+					objectAnimationOut(obj, position, transition, null,easing);
 				}).promise().done(function(){		
 					slideAnimationOut(animation);	
 				});
@@ -536,7 +536,7 @@
 			if(easing == null){
 				easing = options['easeIn'];
 			}
-			moveObjectIn(obj, position, transition, delay, time, easing, special);
+			objectAnimationIn(obj, position, transition, delay, time, easing, special);
 			
 			vars.currentObj++;
 			
@@ -668,10 +668,10 @@
 			}
 			
 			switch(animation){
-				case 'none':
-					cssStart.display = 'none';
-					speed = 0
-					break;
+				// case 'none':
+				// 	cssStart.display = 'none';
+				// 	speed = 0
+				// 	break;
 				case 'scrollLeft':
 					cssEnd.left = 0 - sliderWidth + unit;
 					cssEnd.top = 0 + unit;
@@ -701,73 +701,81 @@
 		}
 		
 		/** IN TRANSITION OBJECTS **/
-		function moveObjectIn(obj, position, transition, delay, time, easing, special){
-			var startY = null;
-			var startX = null;
-			var targetY = null;
-			var targetX = null;
-			var speed = null;
+		function objectAnimationIn(obj, position, transition, delay, time, easing, special){
+			var cssStart = {},
+				cssEnd = {};
+				
+			var speed = options['speedIn'],
+			    unit = null;
+				
+			if(options['responsive']){
+				unit = '%';
+			}else{
+				unit = 'px';
+			}
+			
+			// #time
+			if(time != null){
+				speed = time - delay;
+			}
 			
 			// set start position
 			switch(transition){
 				case 'left':
-					startY = position[0];
-					startX = sliderWidth;
+					cssStart.top = position[0];
+					cssStart.left = sliderWidth;
 					break;
 				case 'bottomLeft':
-					startY = sliderHeight;
-					startX = sliderWidth;
+					cssStart.top = sliderHeight;
+					cssStart.left = sliderWidth;
 					break;
 				case 'topLeft':
-					startY = obj.outerHeight()*-1;
-					startX = sliderWidth;
+					cssStart.top = obj.outerHeight()*-1;
+					cssStart.left = sliderWidth;
 					break;
 				case 'top':
-					startY = obj.outerHeight()*-1;
-					startX = position[1];
+					cssStart.top = obj.outerHeight()*-1;
+					cssStart.left = position[1];
 					break;
 				case 'bottom':
-					startY = sliderHeight;
-					startX = position[1];
+					cssStart.top = sliderHeight;
+					cssStart.left = position[1];
 					break;
 				case 'right':
-					startY = position[0];
-					startX = 0 - offsetX- obj.outerWidth();
+					cssStart.top = position[0];
+					cssStart.left = 0 - offsetX- obj.outerWidth();
 					break;
 				case 'bottomRight':
-					startY = sliderHeight;
-					startX = 0 - offsetX- obj.outerWidth();
+					cssStart.top = sliderHeight;
+					cssStart.left = 0 - offsetX- obj.outerWidth();
 					break;
 				case 'topRight':
-					startY = obj.outerHeight()*-1;
-					startX = 0 - offsetX- obj.outerWidth();
+					cssStart.top = obj.outerHeight()*-1;
+					cssStart.left = 0 - offsetX- obj.outerWidth();
+					break;
+				case 'fade':
+					cssStart.top  = position[0];
+					cssStart.left = position[1];
+					cssStart.opacity = 0;
+					cssEnd.opacity = 1;
+					break;
+				case 'none':
+					cssStart.top  = position[0];
+					cssStart.left = position[1];
+					cssStart.display = 'none';
+					speed = 0;
 					break;
 			}
 			
-			
 			// set target position
-			targetY = position[0];
-			targetX = position[1];
+			cssEnd.top  = position[0];
+			cssEnd.left = position[1];
 			
-			
-			// #time
-			if(time == null){
-				speed = options['speedIn'];
-			}else{
-				speed = time - delay;
-			}
-			
-			if(options['responsive']){
-				targetX = targetX+'%';
-				targetY = targetY+'%';
-				startX = startX+'%';
-				startY = startY+'%';
-			}else{
-				targetX = targetX+'px';
-				targetY = targetY+'px';
-				startX = startX+'px';
-				startY = startY+'px';
-			}
+			// sets the right unit
+			cssEnd.left 	= cssEnd.left + unit;
+			cssEnd.top 		= cssEnd.top + unit;
+			cssStart.left 	= cssStart.left + unit;
+			cssStart.top 	= cssStart.top + unit;
 			
 			// set the delay
 			timeouts.push(setTimeout(function(){
@@ -781,200 +789,108 @@
 							if(tmpTransition == null){
 								tmpTransition = options['transitionOut'];
 							}
-						moveObjectOut(tmp, tmpPosition, tmpTransition, speed);
+						objectAnimationOut(tmp, tmpPosition, tmpTransition, speed);
 					}
 				}
 				
-				if(transition == 'fade'){
-					 obj.css({"top": targetY, "left": targetX})
-						.fadeIn(speed, 
+				// animate
+				obj.css(cssStart)
+				   .show()
+				   .animate(cssEnd, 
+				   		 speed, 
+				   		 easing, 
 				   		 function(){
 				   		 	objFinished(obj);
 				   		 	}
-						)
-						.addClass('fs_obj_active');					
-				}else if(transition == 'none'){
-					// no animation
-					 obj.css({"top": targetY, "left": targetX})
-						.show(0, 
-				   		 function(){
-				   		 	objFinished(obj);
-				   		 	}
-						)
-						.addClass('fs_obj_active');
-				}else{
-					// animate
-					obj.css({"top": startY, "left": startX})
-					   .show()
-					   .animate({"top": targetY, "left": targetX}, 
-					   		 speed, 
-					   		 easing, 
-					   		 function(){
-					   		 	objFinished(obj);
-					   		 	}
-					   		)
-					   .addClass('fs_obj_active');	
-				}
+				   		)
+				   .addClass('fs_obj_active');	
 			},delay));
 		}
 		
 		/** OUT TRANSITION OBJECTS **/
-		function moveObjectOut(obj, position, transition, speed, easing){
-			var targetY = null;
-			var targetX = null;
+		function objectAnimationOut(obj, position, transition, speed, easing){
+			var cssEnd = {};
+			
+			var speed = options['speedOut'],
+			    unit = null;
+			
 			// set target position
 			switch(transition){
 				case 'left':
-					targetY = obj.css('top');
-					if(targetY.indexOf('px') > 0 && options['responsive']){
-						targetY = targetY.substring(0,targetY.length - 2);
-						targetY = pixelToPercent(targetY, dY);
-					};
-					targetX = 0 - offsetX - 100 - obj.outerWidth();
+					cssEnd.top = obj.css('top');
+					cssEnd.left = 0 - offsetX - 100 - obj.outerWidth();
 					break;
 				case 'bottomLeft':
-					targetY = sliderHeight;
-					targetX = 0 - offsetX - 100 - obj.outerWidth();
+					cssEnd.top = sliderHeight;
+					cssEnd.left = 0 - offsetX - 100 - obj.outerWidth();
 					break;
 				case 'topLeft':
-					targetY = obj.outerHeight()*-1;
-					targetX = 0 - offsetX - 100 - obj.outerWidth();
+					cssEnd.top = obj.outerHeight()*-1;
+					cssEnd.left = 0 - offsetX - 100 - obj.outerWidth();
 					break;
 				case 'top':
-					targetY = obj.outerHeight()*-1;
-					targetX = obj.css('left');
-					if(targetX.indexOf('px') > 0 && options['responsive']){
-						targetX = targetX.substring(0,targetX.length - 2);
-						targetX = pixelToPercent(targetX, dX);
-					};
+					cssEnd.top = obj.outerHeight()*-1;
+					cssEnd.left = obj.css('left');
 					break;
 				case 'bottom':
-					targetY = sliderHeight;
-					targetX = obj.css('left');
-					targetX = obj.css('left');
-					if(targetX.indexOf('px') > 0 && options['responsive']){
-						targetX = targetX.substring(0,targetX.length - 2);
-						targetX = pixelToPercent(targetX, dX);
-					};
+					cssEnd.top = sliderHeight;
+					cssEnd.left = obj.css('left');
 					break;
 				case 'right':
-					targetY = obj.css('top');
-					if(targetY.indexOf('px') > 0 && options['responsive']){
-						targetY = targetY.substring(0,targetY.length - 2);
-						targetY = pixelToPercent(targetY, dY);
-					};
-					targetX = sliderWidth;
+					cssEnd.top = obj.css('top');
+					cssEnd.left = sliderWidth;
 					break;
 				case 'bottomRight':
-					targetY = sliderHeight;
-					targetX = sliderWidth;
+					cssEnd.top = sliderHeight;
+					cssEnd.left = sliderWidth;
 					break;
 				case 'topRight':
-					targetY = obj.outerHeight()*-1;
-					targetX = sliderWidth;
+					cssEnd.top = obj.outerHeight()*-1;
+					cssEnd.left = sliderWidth;
+					break;
+				case 'fade':
+					cssEnd.opacity = 0;
+					cssEnd.top = obj.css('top');
+					cssEnd.left = obj.css('left');
+					break;
+				case 'none':
+					cssEnd.display = 'none';
+					cssEnd.top = obj.css('top');
+					cssEnd.left = obj.css('left');
+					speed = 0;
 					break;
 				default:
 					break;
 			}
 			
-			if(targetY != null){
-				if(targetY.toString().indexOf('px') > 0){
-					targetY = targetY.substring(0,targetY.length - 2);
-				}
+			// substracts the px
+			if(cssEnd.top.toString().indexOf('px') > 0){
+				cssEnd.top = cssEnd.top.substring(0,cssEnd.top.length - 2);
 			}
-			if(targetX != null){
-				if(targetX.toString().indexOf('px') > 0){
-					targetX = targetX.substring(0,targetX.length - 2);
-				}
+			if(cssEnd.left.toString().indexOf('px') > 0){
+				cssEnd.left = cssEnd.left.substring(0,cssEnd.left.length - 2);
 			}
 			
-			// get speed for the out transition
-			if((speed == null && transition != 'fade') || (speed == null && transition != 'none')){
-				var pL = null, pT = null, ms = null;
-				var dist = null, distY = null, distX = null;
-				if(options['responsive']){
-					ms = pixelToPercent(1000, dX);
-					pL = pixelToPercent(position['left'], dX);
-					pT = pixelToPercent(position['top'], dY);
-				}else{
-					ms = 1000;
-					pL = position['left'];
-					pT = position['top'];
-				}
-				
-				
-				
-				if(pL>targetX){
-					distX = Math.abs(pL-targetX);
-				}else
-				if(targetX>pL){
-					distX = Math.abs(targetX-pL);
-				}else{
-					distX = 0;
-				}
-				
-				if(pT>targetY){
-					distY = Math.abs(pT-targetY);
-				}else
-				if(targetY>pT){
-					distY = Math.abs(targetY-pT);
-				}else{
-					distY = 0;
-				}
-				
-				dist = Math.sqrt((distX*distX)+(distY*distY));
-				
-				// calculate the speed for transition
-				speed = (dist * (options['speedOut']/ms));
-			}else if(speed != null){	
-				speed = options['speedOut'];
-			}else{
-				speed = options['speedOut'];
-			}	
-				
-			
-			if(targetX != null){		
-				if(options['responsive']){
-					targetX = targetX+'%';
-				}else{
-					targetX = targetX+'px';
-				}
+			// px to %
+			if(options['responsive']){
+				cssEnd.top = pixelToPercent(cssEnd.top, dY);
+				cssEnd.left = pixelToPercent(cssEnd.left, dY);
 			}
-			if(targetY != null){		
-				if(options['responsive']){
-					targetY = targetY+'%';
-				}else{
-					targetY = targetY+'px';
-				}
-			}		
 			
-			if(transition == 'fade'){
-				// fade
-				obj.fadeOut(speed, 
-							function(){
-								obj.hide();
-								}
-					)
-					.removeClass('fs_obj_active');				
-			}else if(transition == 'none'){
-				// animation
-				obj.hide(0,
+			
+			// sets the right unit
+			cssEnd.left 	= cssEnd.left + unit;
+			cssEnd.top 		= cssEnd.top + unit;
+			
+			// animation
+			obj.animate(cssEnd, 
+						speed, 
+						easing, 
 						function(){
 							obj.hide();
 							}
-					)
-					.removeClass('fs_obj_active');
-			}else{
-				// animation
-				obj.animate({"top": targetY, "left": targetX}, 
-							speed, 
-							easing, 
-							function(){
-								obj.hide();
-								}
-					)
-					.removeClass('fs_obj_active');	
-			}
+				)
+				.removeClass('fs_obj_active');	
 		}
 		
 		function backgroundAnimation(){
