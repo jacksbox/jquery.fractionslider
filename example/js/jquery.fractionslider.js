@@ -19,9 +19,6 @@
 	
 	// here happens all the fun
 	var FractionSlider = function(element, options){
-		
-		var overmind = this;
-		
 		var vars = {
 			init: 			true, 	// initialised the first time
 			running: 		false,	// currently running
@@ -1066,7 +1063,7 @@
 		var options = $.extend( {
 		  'slideTransition'				: 'none',				// default slide transition
 		  'slideTransitionSpeed'		: 2000,				    // default slide transition
-		  'slideEndAnimation'			: false,				    // if set true, objects will transition out at slide end (before the slideTransition is called)
+		  'slideEndAnimation'			: true,				    // if set true, objects will transition out at slide end (before the slideTransition is called)
 		  'position'					: '0,0',				// default position | should never be used
 		  'transitionIn'        		: 'left',				// default in - transition
 		  'transitionOut' 				: 'left',				// default out - transition
