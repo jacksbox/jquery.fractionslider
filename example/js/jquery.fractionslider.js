@@ -20,6 +20,8 @@
 	// here happens all the fun
 	var FractionSlider = function(element, options){
 		
+		var overmind = this;
+		
 		var vars = {
 			init: 			true, 	// initialised the first time
 			running: 		false,	// currently running
@@ -40,6 +42,7 @@
 		var temp = {
 			currentSlide: 			null, 	// current Slide
 			lastSlide: 				null,	// last Slide (for anim out)
+			animationkey: 			'none', // animation for slidechange
 		};
 		
 		var timeouts = [];
@@ -181,8 +184,6 @@
 		}
 		
 		function nextSlide(){
-			vars.init = true;
-						
 			vars.lastSlide = vars.currentSlide;
 			vars.currentSlide++;
 			
@@ -194,8 +195,6 @@
 		}
 		
 		function prevSlide(){
-			vars.init = true;
-			
 			vars.lastSlide = vars.currentSlide;			
 			vars.currentSlide--;
 			
@@ -207,8 +206,6 @@
 		}
 		
 		function targetSlide(slide){
-			vars.init = true;
-			
 			vars.lastSlide = vars.currentSlide;
 			vars.currentSlide = slide;
 			
@@ -245,7 +242,6 @@
 		/** ************************* **/
 		
 		function cycle(type){
-			
 			if(!vars.pause && !vars.stop && vars.running){
 				switch(type){
 					case "slide":
@@ -261,38 +257,43 @@
 			}
 		}
 		
+		
 		/** ************************* **/
 		/** SLIDES **/
 		/** ************************* **/
 		
 		function slideRotation(){
-			var timeout = 0;
+			
+			var timeout = options['timeout'];
 			// set timeout | first slide instant start
 			if(vars.init){
-				timeout = 0;
 				vars.init = false;
+				slideChangeControler(true);
 			}else{
-				timeout = options['timeout'];
+				// timeout after slide is complete	
+				timeouts.push(setTimeout(function(){
+						// stops the slider after first slide (only when slide count = 1)
+						if(vars.maxSlide == 0 && vars.running == true){
+							// TODO: better solution!
+						}else{
+							vars.lastSlide = vars.currentSlide;
+							vars.currentSlide++;
+							slideChangeControler();
+						}
+					}, 
+					timeout
+				));
 			}
-			
-			// timeout after slide is complete	
-			timeouts.push(setTimeout(function(){
-					// stops the slider after first slide (only when slide count = 1)
-					if(vars.maxSlide == 0 && vars.running == true){
-						// TODO: better solution!
-					}else{
-						slideChangeControler();
-					}
-				}, 
-				timeout
-			));
 		}
 		
-		function slideChangeControler(){
+		function slideChangeControler(init){
 			$('.active-slide').removeClass('active-slide');
 			
 			if(vars.currentSlide > vars.maxSlide){
 				vars.currentSlide = 0;
+			}
+			if(vars.currentSlide < 0){
+				vars.currentSlide = vars.maxSlide;
 			}
 			
 			temp.currentSlide = slider.children('.slide:eq('+vars.currentSlide+')').addClass('active-slide');
@@ -306,75 +307,53 @@
 				if(vars.lastSlide < 0){
 					vars.lastSlide = vars.maxSlide;
 				}
-				
+			
 				temp.lastSlide = slider.children('.slide:eq('+vars.lastSlide+')');
 			}
 			
-			var animation = temp.currentSlide.attr("data-in");
+			if(init){
+				temp.animation = 'none';
+			}else{
+				temp.animation = temp.currentSlide.attr("data-in");
 
-			if(animation == null){
-				animation = options['slideTransition'];
+				if(temp.animation == null){
+					temp.animation = options['slideTransition'];
+				}
 			}
 			
 			if(options['slideEndAnimation'] && vars.lastSlide != null){
-				switch(animation){
-					case 'scrollLeft':
-						startSlide(animation);
-						endSlide(animation);
-						break;
-					case 'scrollRight':
-						startSlide(animation);
-						endSlide(animation);
-						break;
-					case 'scrollTop':
-						startSlide(animation);
-						endSlide(animation);
-						break;
-					case 'scrollBottom':
-						startSlide(animation);
-						endSlide(animation);
-						break;
-					default:
-						startSlide(animation);
-						break;
-				}
+				objOut();
 			}else{
-				switch(animation){
+				switch(temp.animation){
 					case 'none':
-						startSlide(animation);
-						endSlide(animation);
+						startSlide();
+						endSlide();
 						break;
 					case 'scrollLeft':
-						startSlide(animation);
-						endSlide(animation);
+						startSlide();
+						endSlide();
 						break;
 					case 'scrollRight':
-						startSlide(animation);
-						endSlide(animation);
+						startSlide();
+						endSlide();
 						break;
 					case 'scrollTop':
-						startSlide(animation);
-						endSlide(animation);
+						startSlide();
+						endSlide();
 						break;
 					case 'scrollBottom':
-						startSlide(animation);
-						endSlide(animation);
+						startSlide();
+						endSlide();
 						break;
 					default:
-						startSlide(animation);
+						startSlide();
 						break;
 				}
 			}
 		}
 		
 		// starts a slide
-		function startSlide(animation){	
-			animation = temp.currentSlide.attr("data-in");
-
-			if(animation == null){
-				animation = options['slideTransition'];
-			}			
-				
+		function startSlide(){	
 			if(options['backgroundAnimation']){
 				backgroundAnimation()
 			};
@@ -395,56 +374,32 @@
 			
 			temp.currentSlide.children("[data-fixed]").show();
 			
-			slideAnimationIn(animation);
+			slideAnimationIn();
 		}
 		
-		slider.bind('fraction:startSlideComplete', function(){
-			if(temp.lastSlide != null){
-				temp.lastSlide.hide();
-			}
-			cycle('step');
-		});
+		function startSlideComplete(slide){
+				if(temp.lastSlide != null){
+					temp.lastSlide.hide();
+				}
+				if(slide.hasClass('active-slide')){
+					// starts the cycle for the current slide
+					cycle('step');
+				}
+		}
 		
 		// ends a slide
-		function endSlide(animation){
-			
+		function endSlide(){
 			if(temp.lastSlide == null){
 				return;
 			}		
-			
-			if(animation == 'none' || options['slideEndAnimation']){
-				var objs = temp.lastSlide.children();
-
-				objs.each(function(){
-					var obj = $(this);
-					var position = obj.position();
-					var transition = obj.attr("data-out");
-					var easing = obj.attr("data-ease-out");
-
-					if(transition == null){
-						transition = options['transitionOut'];
-					}
-
-					if(easing == null){
-						easing = options['easeOut'];
-					}
-
-					objectAnimationOut(obj, position, transition, null,easing);
-				}).promise().done(function(){		
-					slideAnimationOut(animation);	
-				});
-			}else{
-				slideAnimationOut(animation);
+			if(temp.animation != 'none'){
+				slideAnimationOut();
 			}
 		}
 		
-		slider.bind('fraction:endSlideComplete', function(){
-			if(options['slideEndAnimation']){
-				startSlide();
-			}else{
-				temp.lastSlide.hide();
-			}
-		});
+		function endSlideComplete(){
+			
+		}
 		
 		/** ************************* **/
 		/** STEPS **/
@@ -481,18 +436,16 @@
 				
 				cycle('obj');
 			}else{	
-				slider.trigger('fraction:stepFinished');
+				stepFinished();
 			}
 		}
 		
 		function stepFinished(){
 			vars.currentStep++
+			
 			if(vars.currentStep > vars.maxStep){
 				if(options['autoChange']){
-					vars.lastSlide = vars.currentSlide;
-					vars.currentSlide++;
 					vars.currentStep = 0;
-			
 					cycle('slide');
 				}
 			
@@ -500,10 +453,6 @@
 			}
 			cycle('step');
 		}
-		
-		slider.bind('fraction:stepFinished', function(){
-			stepFinished();
-		});
 		
 		/** ************************* **/
 		/** OBJECTS **/
@@ -553,9 +502,33 @@
 			if(obj.attr('rel') == vars.currentSlide){
 				vars.finishedObjs++;
 				if(vars.finishedObjs == vars.maxObjs){
-					slider.trigger('fraction:stepFinished');
+					stepFinished();
 				}	
 			}
+		}
+		
+		function objOut(){
+			var objs = temp.lastSlide.children(':not([data-fixed])');
+
+			objs.each(function(){
+				var obj = $(this);
+				var position = obj.position();
+				var transition = obj.attr("data-out");
+				var easing = obj.attr("data-ease-out");
+
+				if(transition == null){
+					transition = options['transitionOut'];
+				}
+
+				if(easing == null){
+					easing = options['easeOut'];
+				}
+
+				objectAnimationOut(obj, position, transition, null,easing);
+			}).promise().done(function(){
+				endSlide();
+				startSlide();
+			});	
 		}
 		
 		/** ************************* **/
@@ -564,11 +537,15 @@
 		
 		/** TRANSITION SLIDES **/
 		
-		function slideAnimationIn(animation){
+		function slideAnimationIn(){
+			var slide = temp.currentSlide;
+			
 			var cssStart = {},
 			    cssEnd = {};
 			
 			var speed = options['slideTransitionSpeed'];
+			
+			var animation = temp.animation;
 			
 			if(options['responsive']){
 				unit = '%';
@@ -648,18 +625,20 @@
 					break;
 			}
 			
-			temp.currentSlide.css(cssStart).animate(cssEnd, speed, 'linear',
+			slide.css(cssStart).animate(cssEnd, speed, 'linear',
 		   		 function(){
-					slider.trigger('fraction:startSlideComplete');
+					startSlideComplete(slide);
 		   		 	}
 			);
 		}
-		function slideAnimationOut(animation){
+		function slideAnimationOut(){
 			var cssStart = {},
 				cssEnd = {};
 			
 			var speed = options['slideTransitionSpeed'];
 			var unit = null;
+			
+			var animation = temp.animation;
 			
 			if(options['responsive']){
 				unit = '%';
@@ -695,7 +674,7 @@
 			
 			temp.lastSlide.animate(cssEnd, speed, 'linear',
 		   		 function(){
-					slider.trigger('fraction:endSlideComplete');
+					endSlideComplete();
 		   		 	}
 			);
 		}
@@ -809,35 +788,46 @@
 		
 		/** OUT TRANSITION OBJECTS **/
 		function objectAnimationOut(obj, position, transition, speed, easing){
-			var cssEnd = {};
+			var cssStart = {},
+				cssEnd = {};
 			
 			var speed = options['speedOut'],
 			    unit = null;
+				
+			if(options['responsive']){
+				unit = '%';
+			}else{
+				unit = 'px';
+			}
+			
+			var w = obj.outerWidth(),
+				h = obj.outerHeight();
+			
+			if(options['responsive']){
+				w = pixelToPercent(w, dX);
+				h = pixelToPercent(h, dY);
+			}
 			
 			// set target position
 			switch(transition){
 				case 'left':
-					cssEnd.top = obj.css('top');
-					cssEnd.left = 0 - offsetX - 100 - obj.outerWidth();
+					cssEnd.left = 0 - offsetX - 100 - w;
 					break;
 				case 'bottomLeft':
 					cssEnd.top = sliderHeight;
-					cssEnd.left = 0 - offsetX - 100 - obj.outerWidth();
+					cssEnd.left = 0 - offsetX - 100 - w;
 					break;
 				case 'topLeft':
-					cssEnd.top = obj.outerHeight()*-1;
-					cssEnd.left = 0 - offsetX - 100 - obj.outerWidth();
+					cssEnd.top = -h;
+					cssEnd.left = 0 - offsetX - 100 - w;
 					break;
 				case 'top':
-					cssEnd.top = obj.outerHeight()*-1;
-					cssEnd.left = obj.css('left');
+					cssEnd.top = -h;
 					break;
 				case 'bottom':
 					cssEnd.top = sliderHeight;
-					cssEnd.left = obj.css('left');
 					break;
 				case 'right':
-					cssEnd.top = obj.css('top');
 					cssEnd.left = sliderWidth;
 					break;
 				case 'bottomRight':
@@ -845,36 +835,39 @@
 					cssEnd.left = sliderWidth;
 					break;
 				case 'topRight':
-					cssEnd.top = obj.outerHeight()*-1;
+					cssEnd.top = -h;
 					cssEnd.left = sliderWidth;
 					break;
 				case 'fade':
+					cssStart.opacity = 1;
 					cssEnd.opacity = 0;
-					cssEnd.top = obj.css('top');
-					cssEnd.left = obj.css('left');
 					break;
-				case 'none':
+				case 'hide':
 					cssEnd.display = 'none';
-					cssEnd.top = obj.css('top');
-					cssEnd.left = obj.css('left');
 					speed = 0;
 					break;
-				default:
+				default:	
+					cssEnd.display = 'none';
+					speed = 0;
 					break;
 			}
 			
-			// substracts the px
-			if(cssEnd.top.toString().indexOf('px') > 0){
-				cssEnd.top = cssEnd.top.substring(0,cssEnd.top.length - 2);
-			}
-			if(cssEnd.left.toString().indexOf('px') > 0){
-				cssEnd.left = cssEnd.left.substring(0,cssEnd.left.length - 2);
-			}
-			
-			// px to %
-			if(options['responsive']){
-				cssEnd.top = pixelToPercent(cssEnd.top, dY);
-				cssEnd.left = pixelToPercent(cssEnd.left, dY);
+			if(typeof cssEnd.top !== 'undefined'){
+				// substracts the px
+				if(cssEnd.top.toString().indexOf('px') > 0){
+					cssEnd.top = cssEnd.top.substring(0,cssEnd.top.length - 2);
+					if(options['responsive']){
+						cssEnd.top = pixelToPercent(cssEnd.top, dY);
+					}
+				}
+			};
+			if(typeof cssEnd.left !== 'undefined'){
+				if(cssEnd.left.toString().indexOf('px') > 0){
+					cssEnd.left = cssEnd.left.substring(0,cssEnd.left.length - 2);
+					if(options['responsive']){
+						cssEnd.left = pixelToPercent(cssEnd.left, dX);
+					}
+				}
 			}
 			
 			
@@ -883,7 +876,7 @@
 			cssEnd.top 		= cssEnd.top + unit;
 			
 			// animation
-			obj.animate(cssEnd, 
+			obj.css(cssStart).animate(cssEnd, 
 						speed, 
 						easing, 
 						function(){
@@ -1073,7 +1066,7 @@
 		var options = $.extend( {
 		  'slideTransition'				: 'none',				// default slide transition
 		  'slideTransitionSpeed'		: 2000,				    // default slide transition
-		  'slideEndAnimation'			: true,				    // if set true, objects will transition out at slide end (before the slideTransition is called)
+		  'slideEndAnimation'			: false,				    // if set true, objects will transition out at slide end (before the slideTransition is called)
 		  'position'					: '0,0',				// default position | should never be used
 		  'transitionIn'        		: 'left',				// default in - transition
 		  'transitionOut' 				: 'left',				// default out - transition
