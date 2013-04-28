@@ -1,5 +1,5 @@
 /*
- * jQuery Fraction Slider v0.9.6
+ * jQuery Fraction Slider v0.9.8
  * http://fractionslider.jacksbox.de
  *
  * Author: Mario Jäckle
@@ -14,11 +14,72 @@
 (function($) {
 	
 	/** ************************* **/
+	/** Methods  **/
+	/** ************************* **/	
+	var slider = null;	
+	var methods = {
+		init: function(options) {
+			
+			// defaults & options
+			var options = $.extend( {
+			  'slideTransition'				: 'none',				// default slide transition
+			  'slideTransitionSpeed'		: 2000,				    // default slide transition
+			  'slideEndAnimation'			: true,				    // if set true, objects will transition out at slide end (before the slideTransition is called)
+			  'position'					: '0,0',				// default position | should never be used
+			  'transitionIn'        		: 'left',				// default in - transition
+			  'transitionOut' 				: 'left',				// default out - transition
+			  'fullWidth' 					: false,				// transition over the full width of the window
+			  'delay' 						: 0,					// default delay for elements
+			  'timeout'						: 2000,					// default timeout before switching slides
+			  'speedIn'						: 2500,					// default in - transition speed
+			  'speedOut'					: 1000,					// default out - transition speed
+			  'easeIn'						: 'easeOutExpo',		// default easing in
+			  'easeOut'						: 'easeOutCubic',		// default easing out
+			
+			  'controls'					: false,				// controls on/off
+			  'pager'						: false,				// controls on/off
+			  'autoChange'					: true,					// auto change slides
+			
+			  'backgroundAnimation'			: false,				// background animation
+			  'backgroundElement'			: null,					// element to animate | default fractionSlider element
+			  'backgroundX'					: 500,					// default x distance
+			  'backgroundY'					: 500,					// default y distance
+			  'backgroundSpeed'				: 2500,					// default background animation speed
+			  'backgroundEase'				: 'easeOutCubic',		// default background animation easing
+			
+			  'responsive'					: false,				// activates the responsive slider 
+			  'dimensions'					: '',					// set basic dimension (width,height in px) for the responisve slider - the plugin with position elements with data-position relative to this dimensions (please see the documentation for more info)
+			}, options);
+			
+			return this.each(function(){
+				// ready for take-off 
+				slider = new FractionSlider(this, options);
+			});
+		},
+	    pause : function() { 
+	      slider.pause();
+	    },
+		resume : function() { 
+	      slider.resume();
+	    },
+		stop : function() { 
+	      slider.stop();
+	    },
+		start : function() { 
+	      slider.start();
+	    },
+		startNextSlide : function() { 
+	      slider.startNextSlide();
+	    }
+	  };
+	
+	/** ************************* **/
 	/** SLDIER CLASS  **/
 	/** ************************* **/
 	
 	// here happens all the fun
 	var FractionSlider = function(element, options){
+		
 		var vars = {
 			init: 			true, 	// initialised the first time
 			running: 		false,	// currently running
@@ -77,9 +138,11 @@
 			if(options['controls']){
 				slider.append('<a href="#" class="prev"></a><a href="#" class="next" ></a>');
 				
-				slider.find('.next').bind('click', function(){return nextBtnPressed()
-				})
-				slider.find('.prev').bind('click', function(){return prevBtnPressed()
+				slider.find('.next').bind('click', function(){
+					return nextBtnPressed();
+				});
+				slider.find('.prev').bind('click', function(){
+					return prevBtnPressed();
 				});
 			}
 
@@ -103,7 +166,9 @@
 				
 				// pager again
 				if(options['pager']){
-					var tempObj = $('<a rel="'+index+'" href="#"></a>').bind('click', function(){return pagerPressed(this)});
+					var tempObj = $('<a rel="'+index+'" href="#"></a>').bind('click', function(){
+																						return pagerPressed(this);
+																					});
 					pager.append(tempObj);
 				}	
 			});
@@ -137,6 +202,9 @@
 			
 			cycle('slide');
 		}
+		this.start = function(){					// for method calls
+			start();
+		}
 		
 		function startNextSlide(){
 			vars.stop = false;
@@ -144,6 +212,9 @@
 			vars.running = true;
 			
 			nextSlide();
+		}
+		this.startNextSlide = function(){			// for method calls
+			startNextSlide();
 		}
 		
 		// use with start or startNextSlide
@@ -155,6 +226,9 @@
 			slider.find('.fs_obj').stop(true, true).removeClass('fs-animation');
 			stopTimeouts(timeouts);
 		}
+		this.stop = function(){						// for method calls
+			stop();
+		}
 		
 		// use with resume
 		function pause(){
@@ -162,6 +236,9 @@
 			vars.running = false;
 			
 			slider.find('.fs-animation').finish();
+		}
+		this.pause = function(){					// for method calls
+			pause();
 		}
 		
 		// use with pause
@@ -173,13 +250,18 @@
 			if(vars.finishedObjs < vars.maxObjs){
 				cycle('obj');
 			}else
-			if(vars.finishedObjs < vars.maxStep){
+			if(vars.currentStep < vars.maxStep){
 				cycle('step');
 			}else{
 				cycle('slide');
 			}
 		}
+		this.resume = function(){					// for method calls
+			resume();
+		}
 		
+		
+				
 		function nextSlide(){
 			vars.lastSlide = vars.currentSlide;
 			vars.currentSlide++;
@@ -352,7 +434,7 @@
 		// starts a slide
 		function startSlide(){	
 			if(options['backgroundAnimation']){
-				backgroundAnimation()
+				backgroundAnimation();
 			};
 			
 			if(options['pager']){
@@ -1057,43 +1139,15 @@
 	/** PLUGIN  **/
 	/** ************************* **/
 	
-  	$.fn.fractionSlider = function(options) {
+  	$.fn.fractionSlider = function(method) {
+	    if ( methods[method] ) {
+	      return methods[method].apply( this, Array.prototype.slice.call( arguments, 1 ));
+	    } else if ( typeof method === 'object' || ! method ) {
+	      return methods.init.apply( this, arguments );
+	    } else {
+	      $.error( 'Method ' +  method + ' does not exist on jQuery.tooltip' );
+	    }
 	
-		// defaults & options
-		var options = $.extend( {
-		  'slideTransition'				: 'none',				// default slide transition
-		  'slideTransitionSpeed'		: 2000,				    // default slide transition
-		  'slideEndAnimation'			: true,				    // if set true, objects will transition out at slide end (before the slideTransition is called)
-		  'position'					: '0,0',				// default position | should never be used
-		  'transitionIn'        		: 'left',				// default in - transition
-		  'transitionOut' 				: 'left',				// default out - transition
-		  'fullWidth' 					: false,				// transition over the full width of the window
-		  'delay' 						: 0,					// default delay for elements
-		  'timeout'						: 2000,					// default timeout before switching slides
-		  'speedIn'						: 2500,					// default in - transition speed
-		  'speedOut'					: 1000,					// default out - transition speed
-		  'easeIn'						: 'easeOutExpo',		// default easing in
-		  'easeOut'						: 'easeOutCubic',		// default easing out
-		
-		  'controls'					: false,				// controls on/off
-		  'pager'						: false,				// controls on/off
-		  'autoChange'					: true,					// auto change slides
-		
-		  'backgroundAnimation'			: false,				// background animation
-		  'backgroundElement'			: null,					// element to animate | default fractionSlider element
-		  'backgroundX'					: 500,					// default x distance
-		  'backgroundY'					: 500,					// default y distance
-		  'backgroundSpeed'				: 2500,					// default background animation speed
-		  'backgroundEase'				: 'easeOutCubic',		// default background animation easing
-		
-		  'responsive'					: false,				// default background animation speed
-		  'dimensions'					: '',					// default background animation easing
-		}, options);
-		
-		return this.each(function(){
-			// ready for take-off 
-			var slider = new FractionSlider(this, options);
-		});
   	};
 
 	/** ************************* **/
