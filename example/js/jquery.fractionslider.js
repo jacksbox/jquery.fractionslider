@@ -77,9 +77,11 @@
 			if(options['controls']){
 				slider.append('<a href="#" class="prev"></a><a href="#" class="next" ></a>');
 				
-				slider.find('.next').bind('click', function(){return nextBtnPressed()
-				})
-				slider.find('.prev').bind('click', function(){return prevBtnPressed()
+				slider.find('.next').bind('click', function(){
+					return nextBtnPressed();
+				});
+				slider.find('.prev').bind('click', function(){
+					return prevBtnPressed();
 				});
 			}
 
@@ -103,7 +105,9 @@
 				
 				// pager again
 				if(options['pager']){
-					var tempObj = $('<a rel="'+index+'" href="#"></a>').bind('click', function(){return pagerPressed(this)});
+					var tempObj = $('<a rel="'+index+'" href="#"></a>').bind('click', function(){
+																						return pagerPressed(this);
+																					});
 					pager.append(tempObj);
 				}	
 			});
@@ -352,7 +356,7 @@
 		// starts a slide
 		function startSlide(){	
 			if(options['backgroundAnimation']){
-				backgroundAnimation()
+				backgroundAnimation();
 			};
 			
 			if(options['pager']){
@@ -1086,8 +1090,8 @@
 		  'backgroundSpeed'				: 2500,					// default background animation speed
 		  'backgroundEase'				: 'easeOutCubic',		// default background animation easing
 		
-		  'responsive'					: false,				// default background animation speed
-		  'dimensions'					: '',					// default background animation easing
+		  'responsive'					: false,				// activates the responsive slider 
+		  'dimensions'					: '',					// set basic dimension (width,height in px) for the responisve slider - the plugin with position elements with data-position relative to this dimensions (please see the documentation for more info)
 		}, options);
 		
 		return this.each(function(){
