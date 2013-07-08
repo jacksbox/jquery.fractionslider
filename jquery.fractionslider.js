@@ -1,5 +1,5 @@
 /*
- * jQuery Fraction Slider v0.9.8
+ * jQuery Fraction Slider v0.9.9
  * http://fractionslider.jacksbox.de
  *
  * Author: Mario Jäckle
@@ -777,6 +777,8 @@
 				speed = time - delay;
 			}
 			
+			cssStart.opacity = 1;
+			
 			// set start position
 			switch(transition){
 				case 'left':
@@ -1070,7 +1072,7 @@
 		function resizeSlider(){
 			var w = slider.innerWidth(),
 				h = slider.innerHeight();
-			if(w < dX){
+			if(w <= dX){
 				var xy = dX/dY,
 					nH = w/xy;
 				slider.find('.fs-stretcher').css({'width': w+'px','height': nH+"px"});	

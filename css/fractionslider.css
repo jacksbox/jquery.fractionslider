@@ -48,7 +48,7 @@
 }
 
 .fraction-slider .prev{
-	left:10px; top:185px;
+	left:10px; top:45%;
 	background:url(images/fs.prevnext.png) 0px 0px no-repeat transparent;
 	
 }
