@@ -300,7 +300,8 @@
 		/** ************************* **/
 		
 		function pagerPressed(el){
-			var target = $(el).attr('rel')
+			var target = $(el).attr('rel');
+			
 			if(target == vars.currentSlide){
 				return false;
 			}else{
