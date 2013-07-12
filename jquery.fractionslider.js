@@ -1,5 +1,5 @@
 /*!
- * jQuery Fraction Slider v0.9.9.3
+ * jQuery Fraction Slider v0.9.9.4
  * http://fractionslider.jacksbox.de
  *
  * Author: Mario Jäckle
@@ -8,8 +8,9 @@
  * Copyright 2013, jacksbox.design
  * Free to use under the MIT license.
  * http://www.opensource.org/licenses/mit-license.php
+ *
+ * Special thanks to: Lietzi (https://github.com/lietzi) for contributing
  */
-
 ( function($) {
 
 		/** ************************* **/
