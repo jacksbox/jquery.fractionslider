@@ -1,5 +1,5 @@
 /*!
- * jQuery Fraction Slider v0.9.9.4
+ * jQuery Fraction Slider v0.9.9.5
  * http://fractionslider.jacksbox.de
  *
  * Author: Mario Jäckle
@@ -84,12 +84,12 @@
 			running : false, // currently running
 			pause : false,
 			stop : false,
-			controlsActive : true, // currently running
+			controlsActive : true, // controls pressed
 			currentSlide : 0, // current slide number
 			lastSlide : null, // last slide number (for anim out)
 			maxSlide : 0, // max slide number
 			currentStep : 0, // current step number
-			maxStep : 0, // current slide number
+			maxStep : 0, // max step number
 			currentObj : 0, // curent object number (in step)
 			maxObjs : 0, // max object number (in step)
 			finishedObjs : 0 // finsihed objects (in step)
@@ -307,7 +307,7 @@
 		/** ************************* **/
 
 		function pagerPressed(el) {
-			var target = $(el).attr('rel');
+			var target = parseInt($(el).attr('rel'));
 
 			if (target != vars.currentSlide) {
 				stop();
@@ -353,7 +353,7 @@
 		/** ************************* **/
 
 		function slideRotation() {
-
+			
 			var timeout = options.timeout;
 			// set timeout | first slide instant start
 			if (vars.init) {
@@ -382,7 +382,7 @@
 			}
 			if (vars.currentSlide < 0) {
 				vars.currentSlide = vars.maxSlide;
-			}
+			}	
 
 			temp.currentSlide = slider.children('.slide:eq(' + vars.currentSlide + ')').addClass('active-slide');
 
