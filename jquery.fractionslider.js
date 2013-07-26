@@ -1,5 +1,5 @@
 /*!
- * jQuery Fraction Slider v0.9.9.5
+ * jQuery Fraction Slider v0.9.9.6
  * http://fractionslider.jacksbox.de
  *
  * Author: Mario Jäckle
@@ -47,6 +47,7 @@
 				'backgroundEase' : 'easeOutCubic', // default background animation easing
 
 				'responsive' : false, // activates the responsive slider
+				'increase' : false, // if set, slider is allowed to get bigger than basic dimensions
 				'dimensions' : '' // set basic dimension (width,height in px) for the responisve slider - the plugin with position elements with data-position relative to this dimensions (please see the documentation for more info)
 			}, option);
 
@@ -1034,17 +1035,21 @@
 			$(window).bind('resize', function() {
 				resizeSlider();
 			});
+
 		}
 
 		function resizeSlider() {
 			var w = slider.innerWidth(), h = slider.innerHeight();
-			if (w <= dX) {
+			if (w <= dX || options.increase ) {
 				var xy = dX / dY, nH = w / xy;
 				slider.find('.fs-stretcher').css({
 					'width' : w + 'px',
 					'height' : nH + "px"
 				});
 			}
+
+			// Update bodyWidth
+			bodyWidth = $('body').width();
 
 			// calculate the width/height/offsetX of the slider
 			var sW = slider.width();
