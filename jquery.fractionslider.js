@@ -56,7 +56,7 @@
 			});
 		},
 		pause : function() {
-			slider.pause();
+			slider.pause(true);
 		},
 		resume : function() {
 			slider.resume();
@@ -237,16 +237,18 @@
 		};
 
 		// use with resume
-		function pause() {
+		function pause(finish) {
 			vars.pause = true;
 			vars.running = false;
 
-			slider.find('.fs-animation').finish();
+			if(finish) {
+				slider.find('.fs-animation').finish();
+			}
 		}
 
 
-		this.pause = function() {// for method calls
-			pause();
+		this.pause = function(finish) {// for method calls
+			pause(finish);
 		};
 
 		// use with pause

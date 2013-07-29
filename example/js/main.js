@@ -1,6 +1,6 @@
 $(window).load(function(){
 	$('.slider').fractionSlider({
-		'fullWidth': 			false,
+		'fullWidth': 			true,
 		'controls': 			true, 
 		'pager': 				true,
 		'responsive': 			true,

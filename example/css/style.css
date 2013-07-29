@@ -38,6 +38,12 @@ body{
 	}
 }
 
+@media only screen and (min-width: 1440px){
+	.slider{
+		width:1440px;
+	}
+}
+
 /* ELEMENT STYLES */
 
 p{
