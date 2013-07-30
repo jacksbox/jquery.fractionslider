@@ -202,6 +202,8 @@
 			vars.running = true;
 
 			cycle('slide');
+			
+			$.isFunction( options.startCallback ) && options.startCallback.call( slider, vars.currentSlide, vars.currentStep );
 		}
 
 
@@ -215,6 +217,8 @@
 			vars.running = true;
 
 			nextSlide();
+			
+			$.isFunction( options.startNextSlideCallback ) && options.startNextSlideCallback.call( slider, vars.currentSlide );
 		}
 
 
@@ -230,6 +234,8 @@
 			slider.find('.slide').stop(true, true);
 			slider.find('.fs_obj').stop(true, true).removeClass('fs-animation');
 			stopTimeouts(timeouts);
+			
+			$.isFunction( options.stopCallback ) && options.stopCallback.call( slider, vars.currentSlide, vars.currentStep );
 		}
 
 
@@ -245,11 +251,12 @@
 			if(finish) {
 				slider.find('.fs-animation').finish();
 			}
+			$.isFunction( options.pauseCallback ) && options.pauseCallback.call( slider, vars.currentSlide, vars.currentStep );
 		}
 
 
-		this.pause = function(finish) {// for method calls
-			pause(finish);
+		this.pause = function() {// for method calls
+			pause(true);
 		};
 
 		// use with pause
@@ -265,6 +272,8 @@
 			} else {
 				cycle('slide');
 			}
+			
+			$.isFunction( options.resumeCallback ) && options.resumeCallback.call( slider, vars.currentSlide, vars.currentStep );
 		}
 
 
@@ -281,6 +290,8 @@
 			vars.running = true;
 
 			slideChangeControler();
+			
+			$.isFunction( options.nextSlideCallback ) && options.nextSlideCallback.call( slider, vars.currentSlide, vars.lastSlide );
 		}
 
 		function prevSlide() {
@@ -292,6 +303,8 @@
 			vars.running = true;
 
 			slideChangeControler();
+			
+			$.isFunction( options.prevSlideCallback ) && options.prevSlideCallback.call( slider, vars.currentSlide, vars.lastSlide );
 		}
 
 		function targetSlide(slide) {
@@ -303,6 +316,8 @@
 			vars.running = true;
 
 			slideChangeControler();
+			
+			$.isFunction( options.pagerCallback ) && options.pagerCallback.call( slider, vars.currentSlide, vars.lastSlide  );
 		}
 
 		/** ************************* **/
