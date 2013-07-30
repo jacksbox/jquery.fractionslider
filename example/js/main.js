@@ -4,7 +4,8 @@ $(window).load(function(){
 		'controls': 			true, 
 		'pager': 				true,
 		'responsive': 			true,
-		'dimensions': 			"1000,400"
+		'dimensions': 			"1000,400",
+	    'increase': 			true
 	});
 
 });

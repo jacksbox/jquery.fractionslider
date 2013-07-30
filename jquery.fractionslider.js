@@ -968,6 +968,10 @@
 
 			dX = d['0'];
 			dY = d['1'];
+			
+			if (!options.increase) {
+				$(element).css({"maxWidth": dX+"px"});
+			}
 
 			var objs = slider.children('.slide').find('*');
 
