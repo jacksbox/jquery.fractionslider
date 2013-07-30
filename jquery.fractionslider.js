@@ -38,6 +38,7 @@
 				'controls' : false, // controls on/off
 				'pager' : false, // controls on/off
 				'autoChange' : true, // auto change slides
+				'pauseOnHover' : false,
 
 				'backgroundAnimation' : false, // background animation
 				'backgroundElement' : null, // element to animate | default fractionSlider element
@@ -48,7 +49,16 @@
 
 				'responsive' : false, // activates the responsive slider
 				'increase' : false, // if set, slider is allowed to get bigger than basic dimensions
-				'dimensions' : '' // set basic dimension (width,height in px) for the responisve slider - the plugin with position elements with data-position relative to this dimensions (please see the documentation for more info)
+				'dimensions' : '', // set basic dimension (width,height in px) for the responisve slider - the plugin with position elements with data-position relative to this dimensions (please see the documentation for more info),
+				
+				'startCallback' : null,
+				'startNextSlideCallback' : null,
+				'stopCallback' : null,
+				'pauseCallback' : null,
+				'resumeCallback' : null,
+				'nextSlideCallback' : null,
+				'prevSlideCallback' : null,
+				'pagerCallback' : null
 			}, option);
 
 			return this.each(function() {
@@ -130,7 +140,7 @@
 		/** ************************* **/
 
 		function init() {
-
+			
 			// controls
 			if (options.controls) {
 				slider.append('<a href="#" class="prev"></a><a href="#" class="next" ></a>');
@@ -142,6 +152,13 @@
 				slider.find('.prev').bind('click', function() {
 					return prevBtnPressed();
 				});
+			}
+			
+			if (options.pauseOnHover) {
+				slider.bind({
+					mouseenter: function(){ pause(false); },
+					mouseleave: function(){ resume(); }
+					});
 			}
 
 			// fullwidth setup
