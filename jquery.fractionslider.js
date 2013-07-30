@@ -38,7 +38,7 @@
 				'controls' : false, // controls on/off
 				'pager' : false, // controls on/off
 				'autoChange' : true, // auto change slides
-				'pauseOnHover' : false,
+				'pauseOnHover' : false, // Pauses slider on hover (current step will still be completed)
 
 				'backgroundAnimation' : false, // background animation
 				'backgroundElement' : null, // element to animate | default fractionSlider element
