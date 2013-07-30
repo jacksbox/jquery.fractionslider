@@ -96,6 +96,7 @@
 			pause : false,
 			stop : false,
 			slideComplete : false, // current slide complete (needed for pause method)
+			stepComplete : false,
 			controlsActive : true, // controls pressed
 			currentSlide : 0, // current slide number
 			lastSlide : null, // last slide number (for anim out)
@@ -284,17 +285,19 @@
 			vars.pause = false;
 			vars.running = true;
 			
-			if(vars.slideComplete) {
+			if( vars.slideComplete ) {
 				cycle('slide');
-			}else{
+			} else if( vars.stepComplete ) {
+				cycle('step');
+			} else {
 				if (vars.finishedObjs < vars.maxObjs) {
 					// do nothing - elements are still animating
-				} else if (vars.currentStep < vars.maxStep) {
-					cycle('step');
+				} else if (vars.currentStep < vars.maxStep) { // IS THIS STILL NEEDED?
+					cycle('step'); // IS THIS STILL NEEDED?
 				} else {
-					cycle('slide');
+					cycle('slide'); // IS THIS STILL NEEDED?
 				}
-			}	
+			}
 			
 			methodeCallback(options.resumeCallback );
 		}
@@ -388,7 +391,8 @@
 						vars.slideComplete = false;
 						slideRotation();
 						break;
-					case "step":
+					case "step":	
+						vars.stepComplete = false;
 						iterateSteps();
 						break;
 					case "obj":
@@ -580,6 +584,7 @@
 		}
 
 		function stepFinished() {
+			vars.stepComplete = true;
 			vars.currentStep += 1;
 
 			if (vars.currentStep > vars.maxStep) {
