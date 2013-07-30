@@ -203,7 +203,7 @@
 
 			cycle('slide');
 			
-			$.isFunction( options.startCallback ) && options.startCallback.call( slider, vars.currentSlide, vars.currentStep );
+			methodeCallback(options.startCallback);
 		}
 
 
@@ -218,7 +218,7 @@
 
 			nextSlide();
 			
-			$.isFunction( options.startNextSlideCallback ) && options.startNextSlideCallback.call( slider, vars.currentSlide );
+			methodeCallback(options.startNextSlideCallback);
 		}
 
 
@@ -235,7 +235,7 @@
 			slider.find('.fs_obj').stop(true, true).removeClass('fs-animation');
 			stopTimeouts(timeouts);
 			
-			$.isFunction( options.stopCallback ) && options.stopCallback.call( slider, vars.currentSlide, vars.currentStep );
+			methodeCallback(options.stopCallback);
 		}
 
 
@@ -251,12 +251,13 @@
 			if(finish) {
 				slider.find('.fs-animation').finish();
 			}
-			$.isFunction( options.pauseCallback ) && options.pauseCallback.call( slider, vars.currentSlide, vars.currentStep );
+			
+			methodeCallback(options.pauseCallback);
 		}
 
 
 		this.pause = function() {// for method calls
-			pause(true);
+			pause(false);
 		};
 
 		// use with pause
@@ -273,7 +274,7 @@
 				cycle('slide');
 			}
 			
-			$.isFunction( options.resumeCallback ) && options.resumeCallback.call( slider, vars.currentSlide, vars.currentStep );
+			methodeCallback(options.resumeCallback );
 		}
 
 
@@ -291,7 +292,7 @@
 
 			slideChangeControler();
 			
-			$.isFunction( options.nextSlideCallback ) && options.nextSlideCallback.call( slider, vars.currentSlide, vars.lastSlide );
+			methodeCallback(options.nextSlideCallback);
 		}
 
 		function prevSlide() {
@@ -304,7 +305,7 @@
 
 			slideChangeControler();
 			
-			$.isFunction( options.prevSlideCallback ) && options.prevSlideCallback.call( slider, vars.currentSlide, vars.lastSlide );
+			methodeCallback(options.prevSlideCallback);
 		}
 
 		function targetSlide(slide) {
@@ -317,7 +318,15 @@
 
 			slideChangeControler();
 			
-			$.isFunction( options.pagerCallback ) && options.pagerCallback.call( slider, vars.currentSlide, vars.lastSlide  );
+			methodeCallback(options.pagerCallback);
+		}
+		
+		/** ************************* **/
+		/** CALLBACKS **/
+		/** ************************* **/
+		
+		function methodeCallback(callback) {
+			$.isFunction( callback ) && callback.call( this, slider, vars.currentSlide, vars.lastSlide, vars.currentStep  );
 		}
 
 		/** ************************* **/
