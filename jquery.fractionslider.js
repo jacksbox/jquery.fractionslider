@@ -1034,7 +1034,6 @@
 				// calculate % position
 				if (obj.attr("data-position") != null) {
 					var position = obj.attr("data-position").split(',');
-
 					x = pixelToPercent(position[1], dX);
 					y = pixelToPercent(position[0], dY);
 					obj.attr("data-position", y + ',' + x);
@@ -1043,7 +1042,6 @@
 				// calculate % width
 				if (obj.attr("width") != null) {
 					value = obj.attr("width");
-
 					x = pixelToPercent(value, dX);
 					obj.attr("width", x + "%");
 					obj.css("width", x + "%");
@@ -1056,14 +1054,16 @@
 					}
 				} else if (obj.prop("tagName").toLowerCase() == 'img') {
 					value = obj.get(0).width;
+					if (value == 0) {
+						// check width on visible clone (IE doesn´t recognize dimension on invisible img)
+						value = getCloneWidth(obj);
+					}
 					x = pixelToPercent(value, dX);
 					obj.css("width", x + "%");
 				}
-
 				// calculate % height
 				if (obj.attr("height") != null) {
 					value = obj.attr("height");
-
 					y = pixelToPercent(value, dY);
 					obj.attr("height", y + "%");
 					obj.css("height", y + "%");
@@ -1077,7 +1077,10 @@
 				} else if (obj.prop("tagName").toLowerCase() == 'img') {
 					value = obj.get(0).height;
 					y = pixelToPercent(value, dY);
-					obj.css("height", y + "%");
+					if (value != 0) {
+						// only set height, when value is set properly (IE-Bug - see width)
+						obj.css("height", y + "%");
+					}
 				}
 
 				obj.attr('data-fontsize', obj.css('font-size'));
@@ -1140,6 +1143,24 @@
 				}
 
 			});
+		}
+
+		function getCloneWidth(testObj) {
+			// create Container outside of view for "visible" Clone
+			var $hiddenDiv = $('<div id="testWidth"></div>').appendTo('body').css({
+				'position' : 'absolute',
+				'visibility' : 'hidden',
+				'top' : '-99999px'
+			});
+			// clone object into Container
+			testObj.clone().appendTo('#testWidth');
+				testObjWidth = /*$('#testDimensions') */
+
+			$hiddenDiv.find('img').width();
+
+			$hiddenDiv.remove();
+
+			return testObjWidth;
 		}
 
 		function pixelToPercent(value, d) {
