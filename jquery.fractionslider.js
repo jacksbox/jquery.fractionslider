@@ -174,27 +174,31 @@
 			}
 
 			// pager
-			if (options.pager) {
-				pager = $('<div class="fs-pager-wrapper"></div>');
-				slider.append(pager);
-			}
-
-			slider.children('.slide').each(function(index) {
-				var slide = $(this);
-				slide.children().attr('rel', index).addClass('fs_obj');
-				slide.children('[data-fixed]').addClass('fs_fixed_obj');
-
-				// pager again
-				if (options.pager) {
-					var tempObj = $('<a rel="' + index + '" href="#"></a>').bind('click', function() {
-						return pagerPressed(this);
-					});
-					pager.append(tempObj);
-				}
-			});
-			if (options.pager) {
-				pager = $(pager).children('a');
-			}
+		            if (options.pager) {
+		                var customPager = (typeof options.pager !== 'boolean');
+		                pager = (customPager) ? options.pager : $('<div class="fs-pager-wrapper"></div>');
+		                if (!customPager) {
+		                    slider.append(pager);
+		                }
+		            }
+		
+		            slider.children('.slide').each(function(index) {
+		                var slide = $(this);
+		                slide.children().attr('rel', index).addClass('fs_obj');
+		                slide.children('[data-fixed]').addClass('fs_fixed_obj');
+		
+		                // add default pager if active
+		                if (options.pager && !customPager) {
+		                    pager.append($('<a rel="' + index + '" href="#"></a>'));
+		                }
+		
+		                // add click event handler
+		                if (options.pager || customPager) {
+		                    pager.find('a[rel="' + index + '"]').bind('click', function() {
+		                        return pagerPressed(this);
+		                    });
+		                }
+		            });
 
 			// responisve
 			if (options.responsive) {
