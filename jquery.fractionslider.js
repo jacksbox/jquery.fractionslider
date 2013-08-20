@@ -173,10 +173,14 @@
 				});
 			}
 
-			// pager
 			if (options.pager) {
-				pager = $('<div class="fs-pager-wrapper"></div>');
-				slider.append(pager);
+			    var customPager = (typeof options.pager !== 'boolean');
+			    pager = (customPager) ? options.pager : $('<div class="fs-pager-wrapper"></div>');
+			    if (!customPager) {
+			        slider.append(pager);
+			    }else{
+					pager.addClass('fs-custom-pager-wrapper');
+				}
 			}
 
 			slider.children('.slide').each(function(index) {
@@ -185,7 +189,7 @@
 				slide.children('[data-fixed]').addClass('fs_fixed_obj');
 
 				// pager again
-				if (options.pager) {
+				if (options.pager || customPager) {
 					var tempObj = $('<a rel="' + index + '" href="#"></a>').bind('click', function() {
 						return pagerPressed(this);
 					});

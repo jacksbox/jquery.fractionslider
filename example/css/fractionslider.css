@@ -77,12 +77,14 @@
 	z-index:9999;	
 }
 
-.fs-pager-wrapper a{
+.fs-pager-wrapper a,
+.fs-custom-pager-wrapper a{
 	display:inline-block;
 	width:14px; height:14px;
 	margin:0 5px 0 0;
 	background:url(images/fs.pager.png) 0px -14px no-repeat transparent;
 }
-.fs-pager-wrapper .active{
+.fs-pager-wrapper .active,
+.fs-custom-pager-wrapper .active{
 	background:url(images/fs.pager.png) 0px 0px no-repeat transparent;
 }
