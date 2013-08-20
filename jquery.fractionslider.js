@@ -544,7 +544,6 @@
 		}
 
 		function endSlideComplete() {
-
 		}
 
 		/** ************************* **/
