@@ -1017,7 +1017,8 @@
 		/** ************************* **/
 
 		function makeResponsive() {
-			var d = options.dimensions.split(',');
+			var d = options.dimensions.split(','),
+				ie = msie();
 
 			dX = d['0'];
 			dY = d['1'];
@@ -1027,7 +1028,7 @@
 			}
 
 			var objs = slider.children('.slide').find('*');
-
+			
 			objs.each(function() {
 				var obj = $(this), x = null, y = null, value = null;
 
@@ -1041,7 +1042,7 @@
 				}
 
 				// calculate % width
-				if (obj.attr("width") != null) {
+				if (obj.attr("width") != null && obj.attr("width") != "") {
 					value = obj.attr("width");
 
 					x = pixelToPercent(value, dX);
@@ -1054,14 +1055,21 @@
 						x = pixelToPercent(value, dX);
 						obj.css("width", x + "%");
 					}
-				} else if (obj.prop("tagName").toLowerCase() == 'img') {
+				} else 	if (obj.prop("tagName").toLowerCase() == 'img' && ie != -1) {	
+					value = getWidth(obj);
+					x = pixelToPercent(value, dX);
+					obj.css("width", x + "%").attr('width', x+'%');
+				}
+				else if (obj.prop("tagName").toLowerCase() == 'img') {
 					value = obj.get(0).width;
 					x = pixelToPercent(value, dX);
 					obj.css("width", x + "%");
 				}
+				
+				
 
 				// calculate % height
-				if (obj.attr("height") != null) {
+				if (obj.attr("height") != null && obj.attr("height") != "") {
 					value = obj.attr("height");
 
 					y = pixelToPercent(value, dY);
@@ -1074,6 +1082,10 @@
 						y = pixelToPercent(value, dY);
 						obj.css("height", y + "%");
 					}
+				}else 	if (obj.prop("tagName").toLowerCase() == 'img' && ie != -1) {
+						value = getHeight(obj);
+						y = pixelToPercent(value, dY);
+						obj.css("height", y + "%").attr('height', y+'%');
 				} else if (obj.prop("tagName").toLowerCase() == 'img') {
 					value = obj.get(0).height;
 					y = pixelToPercent(value, dY);
@@ -1096,6 +1108,17 @@
 			});
 
 		}
+		
+		function getWidth (element) {
+		    var img = new Image();
+		    img.src = element.attr('src');
+		    return img.width;
+		  }
+		function getHeight (element) {
+		    var img = new Image();
+		    img.src = element.attr('src');
+		    return img.height;
+		  }
 
 		function resizeSlider() {
 			var w = slider.innerWidth(), h = slider.innerHeight();
@@ -1162,6 +1185,21 @@
 					timeouts = [];
 				}
 			});
+		}
+		
+		function msie()
+		// Returns the version of Internet Explorer or a -1
+		// (indicating the use of another browser).
+		{
+		  var rv = -1; // Return value assumes failure.
+		  if (navigator.appName == 'Microsoft Internet Explorer')
+		  {
+		    var ua = navigator.userAgent;
+		    var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+		    if (re.exec(ua) != null)
+		      rv = parseFloat( RegExp.$1 );
+		  }
+		  return rv;
 		}
 
 	};
