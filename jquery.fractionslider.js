@@ -1,5 +1,5 @@
 /*!
- * jQuery Fraction Slider v0.9.9.9
+ * jQuery Fraction Slider v0.9.100
  * http://fractionslider.jacksbox.de
  *
  * Author: Mario Jäckle
@@ -815,7 +815,7 @@
 			}
 
 			// #time
-			if (time != null) {
+			if (time != null && time != "") {
 				speed = time - delay;
 			}
 
