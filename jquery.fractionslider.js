@@ -1,5 +1,5 @@
 /*!
- * jQuery Fraction Slider v0.9.100
+ * jQuery Fraction Slider v0.9.101
  * http://fractionslider.jacksbox.de
  *
  * Author: Mario Jäckle
@@ -433,7 +433,7 @@
 		}
 
 		function slideChangeControler(init) {
-			$('.active-slide').removeClass('active-slide');
+			slider.find('.active-slide').removeClass('active-slide');
 
 			if (vars.currentSlide > vars.maxSlide) {
 				vars.currentSlide = 0;
