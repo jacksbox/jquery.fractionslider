@@ -1,5 +1,5 @@
 /*!
- * jQuery Fraction Slider v0.9.101
+ * jQuery Fraction Slider v0.9.102
  * http://fractionslider.jacksbox.de
  *
  * Author: Mario Jäckle
