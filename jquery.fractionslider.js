@@ -36,6 +36,8 @@
 				'easeOut' : 'easeOutCubic', // default easing out
 
 				'controls' : false, // controls on/off
+				'controlsNextLabel' : '', // label of forward control element
+				'controlsPrevLabel' : '', // label of backward control element
 				'pager' : false, // controls on/off
 				'autoChange' : true, // auto change slides
 				'pauseOnHover' : false, // Pauses slider on hover (current step will still be completed)
@@ -144,7 +146,9 @@
 			
 			// controls
 			if (options.controls) {
-				slider.append('<a href="#" class="prev"></a><a href="#" class="next" ></a>');
+				slider
+					.append('<a href="#" class="prev">' + options.controlsPrevLabel + '</a>')
+					.append('<a href="#" class="next" >' + options.controlsNextLabel + '</a>');
 
 				slider.find('.next').bind('click', function() {
 					return nextBtnPressed();
