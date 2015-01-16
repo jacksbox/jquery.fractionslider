@@ -418,6 +418,16 @@
 				vars.init = false;
 				slideChangeControler(true);
 			} else {
+			
+				/** ---- Implementation for variable slide duration  ---- **/
+                var slideDuration = slider.children('.slide:eq(' + vars.currentSlide + ')').attr("data-duration");
+                if(slideDuration != undefined){
+                    timeout = slideDuration;
+                }else{
+                    timeout = options.timeout;
+                }
+                /* ----- */
+				
 				// timeout after slide is complete
 				timeouts.push(setTimeout(function() {
 					// stops the slider after first slide (only when slide count = 1)
