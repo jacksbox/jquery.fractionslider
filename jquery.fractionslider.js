@@ -58,7 +58,8 @@
 				'resumeCallback' : null,
 				'nextSlideCallback' : null,
 				'prevSlideCallback' : null,
-				'pagerCallback' : null
+				'pagerCallback' : null,
+				'onSlideTransitionCallback' : null
 			}, option);
 
 			return this.each(function() {
@@ -241,7 +242,9 @@
 
 			nextSlide();
 			
-			methodeCallback(options.startNextSlideCallback);
+			methodeCallback(function(){
+				options.startNextSlideCallback();
+			});
 		}
 
 
@@ -496,6 +499,9 @@
 						break;
 				}
 			}
+			methodeCallback(function(){
+				options.onSlideTransitionCallback();
+			});
 		}
 
 		// starts a slide
