@@ -58,7 +58,9 @@
 				'resumeCallback' : null,
 				'nextSlideCallback' : null,
 				'prevSlideCallback' : null,
-				'pagerCallback' : null
+				'pagerCallback' : null,
+				'prevSlideFadeOut' : true,
+				'prevSlideFadeOutSpeed' : 2000
 			}, option);
 
 			return this.each(function() {
@@ -525,7 +527,11 @@
 
 		function startSlideComplete(slide) {
 			if (temp.lastSlide != null) {
-				temp.lastSlide.hide();
+				if(options.prevSlideFadeOut) {
+					temp.lastSlide.fadeOut(options.prevSlideFadeOutSpeed);
+				} else {
+					temp.lastSlide.hide();
+				}
 			}
 			if (slide.hasClass('active-slide')) {
 				// starts the cycle for the current slide
