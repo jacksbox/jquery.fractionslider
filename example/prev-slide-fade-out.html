@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<html>
+	<head>
+		<meta name="author" content="Levi Durfee">
+		
+		<link rel="stylesheet" href="css/reset.css" type="text/css"   charset="utf-8" />
+		<link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+		<link rel="stylesheet" href="css/fractionslider.css">
+		
+		<script src="js/jquery-1.9.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../jquery.fractionslider.js" type="text/javascript" charset="utf-8"></script>
+		<script>
+		jQuery(window).load(function(){
+		  $('.slider').fractionSlider({
+		  	'slideEndAnimation' : false,
+		  	'backgroundAnimation' : false, 
+		  	'controls' : false,
+		  	'prevSlideFadeOut' : true});
+		});
+		</script>
+	</head>
+	<body>
+		<div class="slider">
+			<div class="slide imgHeight">
+				<div style="background-image:url('images/bg-1.png');" data-step="0" data-speed="10"></div>
+				<div class="imgHeight" style="background-image:url('images/fg-1-1.png');" data-in="left" data-step="0" data-delay="250"></div>
+			</div>
+			<div class="slide imgHeight">
+				<div style="background-image:url('images/bg-2.png');" data-step="0" data-speed="10"></div>
+				<div class="imgHeight" style="background-image:url('images/fg-2-1.png');" data-in="left" data-step="0" data-delay="250"></div>
+				<div class="imgHeight" style="background-image:url('images/fg-2-2.png');" data-in="left" data-step="0" data-delay="250"></div>
+			</div>
+			<div class="slide imgHeight">
+				<div style="background-image:url('images/bg-3.png');" data-step="0" data-speed="10"></div>
+				<div class="imgHeight" style="background-image:url('images/fg-3-1.png');" data-in="left" data-step="0" data-delay="250"></div>
+				<div class="imgHeight" style="background-image:url('images/fg-3-2.png');" data-in="left" data-step="0" data-delay="250"></div>
+			</div>
+			<div class="slide imgHeight">
+				<div style="background-image:url('images/bg-4.png');" data-step="0" data-speed="10"></div>
+				<div class="imgHeight" style="background-image:url('images/fg-4-1.png');" data-in="left" data-step="0" data-delay="250"></div>
+				<div class="imgHeight" style="background-image:url('images/fg-4-2.png');" data-in="left" data-step="0" data-delay="250"></div>
+			</div>
+			<div class="slide imgHeight">
+				<div style="background-image:url('images/bg-5.png');" data-step="0" data-speed="10"></div>
+				<div class="imgHeight" style="background-image:url('images/fg-5-1.png');" data-in="left" data-step="0" data-delay="250"></div>
+				<div class="imgHeight" style="background-image:url('images/fg-5-2.png');" data-in="left" data-step="0" data-delay="250"></div>
+			</div>
+			<div class="fs_loader"></div>
+		</div>
+	</body>
+</html>
