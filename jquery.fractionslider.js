@@ -1,5 +1,5 @@
 /*!
- * jQuery Fraction Slider v0.9.103
+ * jQuery Fraction Slider v1.0
  * http://fractionslider.jacksbox.de
  *
  * Author: Mario Jäckle
@@ -1096,6 +1096,7 @@
 				}
 
 				obj.attr('data-fontsize', obj.css('font-size'));
+				obj.attr('data-letterspacing', obj.css('letter-spacing'));
 
 			});
 
@@ -1163,6 +1164,14 @@
 					n = pixelToPercent(value, dY) * (slider.find('.fs-stretcher').height() / 100);
 					obj.css("fontSize", n + "px");
 					obj.css("lineHeight", '100%');
+				}
+
+				var spacing_value = obj.attr('data-letterspacing');
+
+				if (spacing_value.indexOf('px') > 0) {
+					spacing_value = spacing_value.substring(0, spacing_value.length - 2);
+					n = pixelToPercent(spacing_value, dY) * (slider.find('.fs-stretcher').height() / 100);
+					obj.css("letterSpacing", n + "px");
 				}
 
 			});
