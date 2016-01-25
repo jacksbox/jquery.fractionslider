@@ -53,6 +53,7 @@
 				
 				'startCallback' : null,
 				'startNextSlideCallback' : null,
+            'startPrevSlideCallback' : null,
 				'stopCallback' : null,
 				'pauseCallback' : null,
 				'resumeCallback' : null,
@@ -80,7 +81,10 @@
 		},
 		startNextSlide : function() {
 			slider.startNextSlide();
-		}
+		},
+      startPrevSlide : function() {
+         slider.startPrevSlide();
+      }
 	};
 
 	/** ************************* **/
@@ -243,10 +247,24 @@
 			
 			methodeCallback(options.startNextSlideCallback);
 		}
+      
+      function startPrevSlide() {
+			vars.stop = false;
+			vars.pause = false;
+			vars.running = true;
+
+			prevSlide();
+			
+			methodeCallback(options.startPrevSlideCallback);
+		}
 
 
 		this.startNextSlide = function() {// for method calls
 			startNextSlide();
+		};
+      
+      this.startPrevSlide = function() {// for method calls
+			startPrevSlide();
 		};
 
 		// use with start or startNextSlide
