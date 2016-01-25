@@ -4,10 +4,10 @@
     "description": "jQuery plugin for image/text-sliders. It allows you to animate multiple elements per slide. Set different animation methodes like fade or (from) left, delays and easing for each element, or spimple set some defaults in the plugin options. You also have full layout/design control through html and css (every html-element can be animated). Its also fully responsive.",
     "keywords": [
         "slider",
-		"slideshow",
-		"parallax",
-		"imageslider",
-		"animation"
+        "slideshow",
+        "parallax",
+        "imageslider",
+        "animation"
     ],
     "version": "1.0.0",
     "author": {
@@ -28,8 +28,7 @@
         }
     ],
     "homepage": "http://fractionslider.jacksbox.de",
-    "demo": "http://fractionslider.jacksbox.de",
-    "docs": "http://jacksbox.de/stuff/jquery-fractionslider/documentation/",
+    "repository": "https://github.com/jacksbox/jquery.fractionslider",
     "dependencies": {
         "jquery": ">=1.8"
     }
